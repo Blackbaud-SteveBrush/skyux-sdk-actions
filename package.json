@@ -6,7 +6,8 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "pack": "ncc build"
+    "pack": "ncc build",
+    "test": "npm run build"
   },
   "repository": {
     "type": "git",

@@ -226,7 +226,7 @@ function installCerts() {
     runCommand('npx', '-p @skyux-sdk/cli@next skyux certs install');
 }
 function install() {
-    runCommand('npm', 'ci');
+    runCommand('npm', 'install');
     runCommand('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
 }
 function build() {

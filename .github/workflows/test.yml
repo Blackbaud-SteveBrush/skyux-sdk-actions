@@ -18,8 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
     - name: Clone project
       run: git clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch
+      run: node ./scripts/adjust-skyuxconfig.js
     - name: Run action
       uses: ./
       with:

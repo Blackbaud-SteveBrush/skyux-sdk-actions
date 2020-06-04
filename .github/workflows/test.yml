@@ -25,3 +25,6 @@ jobs:
       with:
         milliseconds: 1000
         working-directory: ./skyux-sdk-template
+      env:
+          BROWSER_STACK_ACCESS_KEY: ${{ secrets.BROWSER_STACK_ACCESS_KEY }}
+          BROWSER_STACK_USERNAME: ${{ secrets.BROWSER_STACK_USERNAME }}

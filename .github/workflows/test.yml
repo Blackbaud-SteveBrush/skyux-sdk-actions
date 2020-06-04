@@ -22,8 +22,9 @@ jobs:
       with:
         node-version: '10.x'
     - name: Clone project
-      run: git clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch
-      run: node ./scripts/adjust-skyuxconfig.js
+      run: |
+        git clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch
+        node ./scripts/adjust-skyuxconfig.js
     - name: Run action
       uses: ./
       with:

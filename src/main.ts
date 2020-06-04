@@ -14,11 +14,6 @@ function runCommand(name: string, args: string): void {
   }
 }
 
-function addProjectIfNotExists() {
-  runCommand('git', 'clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch');
-  runCommand('cd', 'skyux-sdk-template');
-}
-
 function installCerts() {
   runCommand('npx', '-p @skyux-sdk/cli@next skyux certs install');
 }

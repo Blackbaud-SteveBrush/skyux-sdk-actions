@@ -1,6 +1,6 @@
-name: 'Blackbaud'
+name: 'Blackbaud-SteveBrush - SKY UX Coverage'
 description: 'Provide a description here'
-author: 'Your name or organization here'
+author: 'Blackbaud-SteveBrush'
 inputs:
   milliseconds:              # change this
     description: 'input description here'

@@ -205,10 +205,6 @@ function runCommand(name, args) {
         throw new Error('Something bad happened.');
     }
 }
-function addProjectIfNotExists() {
-    runCommand('git', 'clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch');
-    runCommand('cd', 'skyux-sdk-template');
-}
 function installCerts() {
     runCommand('npx', '-p @skyux-sdk/cli@next skyux certs install');
 }
@@ -239,7 +235,6 @@ function buildLibrary() {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            addProjectIfNotExists();
             install();
             installCerts();
             build();

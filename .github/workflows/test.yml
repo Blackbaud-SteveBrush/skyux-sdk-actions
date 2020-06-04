@@ -19,9 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Clone project
-      run: git clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch
+      run: git clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch delete-me
     - name: Run action
       uses: ./
       with:
         milliseconds: 1000
-        working-directory: ./skyux-sdk-template
+        working-directory: ./delete-me/skyux-sdk-template

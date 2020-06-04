@@ -8,8 +8,6 @@ on: # rebuild any PRs and main branch changes
 
 jobs:
   build: # make sure build/ci work properly
-    env:
-      working-directory: skyux-sdk-template
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -22,8 +20,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: Clone project
       run: git clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch
-    - name: Run tests
-      working-directory: ./skyux-sdk-template
+    - name: Run action
       uses: ./
       with:
         milliseconds: 1000
+        working-directory: ./skyux-sdk-template

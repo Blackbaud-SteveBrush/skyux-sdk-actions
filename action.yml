@@ -5,6 +5,9 @@ inputs:
   milliseconds:              # change this
     description: 'input description here'
     default: 0
+  working-directory:
+    description: 'where to run the commands'
+    default: './'
 runs:
   using: 'node12'
   main: 'dist/index.js'

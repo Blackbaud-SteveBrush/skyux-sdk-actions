@@ -1,9 +1,12 @@
-// import * as core from '@actions/core';
+import * as core from '@actions/core';
 import spawn from 'cross-spawn';
-// import * as path from 'path';
+import * as path from 'path';
 
 function runCommand(name: string, args: string): void {
-  const result = spawn.sync(name, args.split(' '), { stdio: 'inherit' });
+  const result = spawn.sync(name, args.split(' '), {
+    stdio: 'inherit',
+    cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
+  });
 
   if (result.error) {
     throw result.error;

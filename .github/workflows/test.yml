@@ -24,6 +24,7 @@ jobs:
     - name: Clone project
       run: |
         git clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch
+        npm install
         node ./scripts/adjust-skyuxconfig.js
     - name: Run action
       uses: ./

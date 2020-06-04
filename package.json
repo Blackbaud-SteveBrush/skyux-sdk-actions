@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "pack": "ncc build",
-    "test": "npm run build"
+    "test": "npm run build && npm run pack"
   },
   "repository": {
     "type": "git",

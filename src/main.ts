@@ -2,9 +2,9 @@ import * as core from '@actions/core';
 
 async function run(): Promise<void> {
   try {
-    core.debug('Hello, world!');
+    core.info('Hello, world!');
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(error.message);
   }
 }
 

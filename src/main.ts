@@ -55,7 +55,6 @@ function buildLibrary() {
 
 async function run(): Promise<void> {
   try {
-    addProjectIfNotExists();
     install();
     installCerts();
     build();

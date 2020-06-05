@@ -2,11 +2,8 @@ name: 'Blackbaud-SteveBrush - SKY UX Coverage'
 description: 'Provide a description here'
 author: 'Blackbaud-SteveBrush'
 inputs:
-  milliseconds:              # change this
-    description: 'input description here'
-    default: 0
   working-directory:
-    description: 'where to run the commands'
+    description: 'Where to run the action.'
     default: './'
 runs:
   using: 'node12'

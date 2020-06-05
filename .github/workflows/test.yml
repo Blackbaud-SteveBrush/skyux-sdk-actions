@@ -13,6 +13,8 @@ jobs:
     - uses: actions/checkout@v1
     - run: |
         npm ci
+        npm run build
+        npm run pack
         npm test
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
@@ -21,16 +23,12 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
-    - name: Clone project
-      run: |
-        git clone https://github.com/blackbaud/skyux-sdk-template -b rc-4.0.0 --single-branch
-        npm install
-        node ./scripts/adjust-skyuxconfig.js
+    - name: Clone sample project
+      run: git clone https://github.com/blackbaud/skyux-sdk-template-library -b master --single-branch
     - name: Run action
       uses: ./
       with:
-        milliseconds: 1000
-        working-directory: ./skyux-sdk-template
+        working-directory: ./skyux-sdk-template-library
       env:
           BROWSER_STACK_ACCESS_KEY: ${{ secrets.BROWSER_STACK_ACCESS_KEY }}
           BROWSER_STACK_USERNAME: ${{ secrets.BROWSER_STACK_USERNAME }}

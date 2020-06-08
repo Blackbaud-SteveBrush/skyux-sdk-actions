@@ -31,7 +31,7 @@ function build() {
 }
 
 function coverage() {
-  runCommand('npx', '-p @skyux-sdk/cli@next skyux test --coverage library --platform travis');
+  runCommand('npx', '-p @skyux-sdk/cli@next skyux test --coverage library --platform travis --logFormat none');
   runCommand('bash', '<(curl -s https://codecov.io/bash)');
 }
 

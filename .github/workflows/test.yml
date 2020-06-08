@@ -24,7 +24,7 @@ jobs:
       with:
         node-version: '10.x'
     - name: Clone sample project
-      run: git clone https://github.com/blackbaud/skyux-sdk-template-library -b master --single-branch
+      run: git clone https://github.com/blackbaud/skyux-sdk-template-library --branch 4.x.x-test-github-actions --single-branch
     - name: Run action
       uses: ./
       with:

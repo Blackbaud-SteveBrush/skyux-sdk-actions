@@ -24,11 +24,14 @@ async function build() {
 
 async function coverage() {
   await runSkyUxCommand('test', '--coverage library');
-  // await execute('bash', '<(curl -s https://codecov.io/bash)');
-  spawn.sync('bash', ['<(curl -s https://codecov.io/bash)'], {
-    stdio: 'inherit',
-    cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
+  await execute('bash', '<(curl -s https://codecov.io/bash)').catch(() => {
+    console.log('Coverage failed!');
+    return Promise.resolve();
   });
+  // spawn.sync('bash <(curl -s https://codecov.io/bash)', {
+  //   stdio: 'inherit',
+  //   cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
+  // });
 }
 
 async function visual() {

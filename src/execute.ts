@@ -10,7 +10,7 @@ export async function execute(command: string, args: string): Promise<string> {
     cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
   });
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
 
     let output: string;
     if (childProcess.stdout) {
@@ -37,7 +37,7 @@ export async function execute(command: string, args: string): Promise<string> {
         resolve(output);
       } else {
         console.log('CHILD PROCESS STDERR:', errorMessage);
-        throw new Error(errorMessage);
+        reject(errorMessage);
       }
     });
   });

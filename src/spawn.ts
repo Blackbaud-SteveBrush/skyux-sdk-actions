@@ -4,30 +4,36 @@ import crossSpawn from 'cross-spawn';
 import * as path from 'path';
 
 export async function spawn(command: string, args: string[] = []): Promise<string> {
-
-  const spawn = require('child_process').spawn;
-  // Create a child process
-  var child = spawn(command , args, {
+  const childProcess = crossSpawn.sync(command, args, {
     stdio: 'inherit',
     cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
   });
 
-  return new Promise((resolve, reject) => {
-    child.stdout.on('data', function (data: any) {
-      console.log('ls command output: ' + data);
-      resolve(data);
-    });
+  return Promise.resolve(childProcess.stdout.toString());
 
-    child.stderr.on('data', function (data: any) {
-      //throw errors
-      console.log('stderr: ' + data);
-      reject(data);
-    });
+  // const spawn = require('child_process').spawn;
+  // // Create a child process
+  // var child = spawn(command , args, {
+  //   stdio: 'inherit',
+  //   cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
+  // });
 
-    child.on('close', function (code: any) {
-      console.log('child process exited with code ' + code);
-    });
-  });
+  // return new Promise((resolve, reject) => {
+  //   child.stdout.on('data', function (data: any) {
+  //     console.log('ls command output: ' + data);
+  //     resolve(data);
+  //   });
+
+  //   child.stderr.on('data', function (data: any) {
+  //     //throw errors
+  //     console.log('stderr: ' + data);
+  //     reject(data);
+  //   });
+
+  //   child.on('close', function (code: any) {
+  //     console.log('child process exited with code ' + code);
+  //   });
+  // });
 
   // const childProcess = crossSpawn(command, args, {
   //   stdio: 'inherit',

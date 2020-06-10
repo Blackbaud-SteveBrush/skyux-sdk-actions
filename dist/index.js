@@ -200,21 +200,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // import { checkScreenshots } from './visual-baselines';
 const execute_1 = __webpack_require__(217);
 function runSkyUxCommand(command, args) {
-    const executeArgs = ['-p', '@skyux-sdk/cli@next', 'skyux', command, '--logFormat', 'none', '--platform', 'travis'];
-    if (args) {
-        executeArgs.concat(args);
-    }
-    return execute_1.execute('npx', executeArgs);
+    return execute_1.execute('npx', `-p @skyux-sdk/cli@next skyux ${command} --logFormat none --platform travis ${args}`);
 }
 function installCerts() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield runSkyUxCommand('certs', ['install']);
+        yield runSkyUxCommand('certs', 'install');
     });
 }
 function install() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield execute_1.execute('npm', ['ci']);
-        yield execute_1.execute('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+        yield execute_1.execute('npm', 'ci');
+        yield execute_1.execute('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
     });
 }
 function build() {
@@ -224,8 +220,8 @@ function build() {
 }
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield runSkyUxCommand('test', ['--coverage library']);
-        yield execute_1.execute('bash', ['<(curl -s https://codecov.io/bash)']);
+        yield runSkyUxCommand('test', '--coverage library');
+        yield execute_1.execute('bash', '<(curl -s https://codecov.io/bash)');
     });
 }
 function visual() {
@@ -298,7 +294,7 @@ const cross_spawn_1 = __importDefault(__webpack_require__(20));
 const path = __importStar(__webpack_require__(622));
 function execute(command, args) {
     return __awaiter(this, void 0, void 0, function* () {
-        const childProcess = cross_spawn_1.default(command, args, {
+        const childProcess = cross_spawn_1.default(command, args.split(' '), {
             stdio: 'inherit',
             cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
         });
@@ -316,6 +312,7 @@ function execute(command, args) {
                 });
             }
             childProcess.on('error', (err) => {
+                console.log('CHILD PROCESS ON ERROR:', err);
                 throw err;
             });
             childProcess.on('exit', (code) => {
@@ -324,6 +321,7 @@ function execute(command, args) {
                     resolve(output);
                 }
                 else {
+                    console.log('CHILD PROCESS STDERR:', errorMessage);
                     throw new Error(errorMessage);
                 }
             });

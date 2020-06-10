@@ -298,7 +298,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const spawn_1 = __webpack_require__(820);
 function directoryHasChanges(dir) {
     return __awaiter(this, void 0, void 0, function* () {
-        const output = yield spawn_1.spawn('git', ['status', dir, '--porcelain']);
+        const output = yield spawn_1.spawn('git', ['status', dir, '--porcelain', '--verbose']);
         if (!output) {
             return false;
         }
@@ -1341,10 +1341,16 @@ function checkScreenshots() {
         const baselineScreenshotsDir = path.resolve(core.getInput('working-directory'), 'screenshots-baseline');
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(baselineScreenshotsDir);
         if (hasChanges) {
-            console.log('Has changes!');
+            console.log('Has changes!', baselineScreenshotsDir);
         }
         else {
-            console.log('no changes found :-(');
+            const hasOtherChanges = yield directory_has_changes_1.directoryHasChanges('screenshots-baseline');
+            if (hasOtherChanges) {
+                console.log('They were saved in the root, lol.');
+            }
+            else {
+                console.log('no changes found :-(', baselineScreenshotsDir);
+            }
         }
     });
 }

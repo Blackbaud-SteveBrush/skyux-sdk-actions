@@ -1,7 +1,7 @@
 import { spawn } from './spawn';
 
 export async function directoryHasChanges(dir: string) {
-  const output = await spawn('git', ['status', dir, '--porcelain']);
+  const output = await spawn('git', ['status', dir, '--porcelain', '--verbose']);
 
   if (!output) {
     return false;

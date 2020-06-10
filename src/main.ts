@@ -27,7 +27,7 @@ function install() {
 }
 
 function build() {
-  runCommand('npx', '-p @skyux-sdk/cli@next skyux build');
+  runCommand('npx', '-p @skyux-sdk/cli@next skyux build --logFormat none');
 }
 
 function coverage() {

@@ -1,3 +1,17 @@
+import { directoryHasChanges } from './directory-has-changes';
+import * as core from '@actions/core';
+import * as path from 'path';
+
+export async function checkScreenshots() {
+  const baselineScreenshotsDir = path.resolve(core.getInput('working-directory'), 'screenshots-baseline');
+  const hasChanges = await directoryHasChanges(baselineScreenshotsDir);
+  if (hasChanges) {
+    console.log('Has changes!');
+  } else {
+    console.log('no changes found :-(');
+  }
+}
+
 // const fs = require('fs-extra');
 // const path = require('path');
 // const rimraf = require('rimraf');

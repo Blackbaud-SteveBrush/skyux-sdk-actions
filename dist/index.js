@@ -205,7 +205,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-// import { checkScreenshots } from './visual-baselines';
+const visual_baselines_1 = __webpack_require__(972);
 const spawn_1 = __webpack_require__(820);
 function runSkyUxCommand(command, args) {
     return spawn_1.spawn('npx', [
@@ -240,7 +240,7 @@ function coverage() {
 function visual() {
     return __awaiter(this, void 0, void 0, function* () {
         yield runSkyUxCommand('e2e');
-        // await checkScreenshots();
+        yield visual_baselines_1.checkScreenshots();
         // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
         // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
     });
@@ -248,22 +248,25 @@ function visual() {
 function buildLibrary() {
     return __awaiter(this, void 0, void 0, function* () {
         yield runSkyUxCommand('build-public-library');
-        /**
-         * const npmTag = 'latest';
-         * npm publish --access public --tag $npmTag;
-         * notifySlack();
-         */
     });
 }
+// async function publishLibrary() {
+//   /**
+//    * const npmTag = 'latest';
+//    * npm publish --access public --tag $npmTag;
+//    * notifySlack();
+//    */
+// }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield install();
             yield installCerts();
-            yield build();
-            yield coverage();
+            // await build();
+            // await coverage();
             yield visual();
-            yield buildLibrary();
+            // await buildLibrary();
+            // await publishLibrary();
         }
         catch (error) {
             core.setFailed(error);
@@ -273,6 +276,42 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 229:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const spawn_1 = __webpack_require__(820);
+function directoryHasChanges(dir) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const output = yield spawn_1.spawn('git', ['status', dir, '--porcelain']);
+        if (!output) {
+            return false;
+        }
+        const result = output.trim();
+        // Untracked files are prefixed with '??'
+        // Modified files are prefixed with 'M'
+        // https://git-scm.com/docs/git-status/1.8.1#_output
+        // https://stackoverflow.com/a/6978402/6178885
+        return (result.indexOf('??') === 0 ||
+            result.indexOf('M') === 0);
+    });
+}
+exports.directoryHasChanges = directoryHasChanges;
 
 
 /***/ }),
@@ -1268,6 +1307,110 @@ module.exports = {
     verifyENOENTSync,
     notFoundError,
 };
+
+
+/***/ }),
+
+/***/ 972:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const directory_has_changes_1 = __webpack_require__(229);
+const core = __importStar(__webpack_require__(470));
+const path = __importStar(__webpack_require__(622));
+function checkScreenshots() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const baselineScreenshotsDir = path.resolve(core.getInput('working-directory'), 'screenshots-baseline');
+        const hasChanges = yield directory_has_changes_1.directoryHasChanges(baselineScreenshotsDir);
+        if (hasChanges) {
+            console.log('Has changes!');
+        }
+        else {
+            console.log('no changes found :-(');
+        }
+    });
+}
+exports.checkScreenshots = checkScreenshots;
+// const fs = require('fs-extra');
+// const path = require('path');
+// const rimraf = require('rimraf');
+// const logger = require('@blackbaud/skyux-logger');
+// const {
+//   exec,
+//   dirHasChanges,
+//   getBuildId
+// } = require('./utils');
+// const baselineScreenshotsDir = 'screenshots-baseline';
+// const tempDir = '.skypagesvisualbaselinetemp';
+// function handleBaselineScreenshots() {
+//   const branch = 'master';
+//   const opts = { cwd: tempDir };
+//   const gitUrl = process.env.VISUAL_BASELINES_REPO_URL;
+//   const buildId = getBuildId();
+//   return Promise.resolve()
+//     .then(() => exec('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']))
+//     .then(() => exec('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']))
+//     .then(() => exec('git', ['clone', gitUrl, '--single-branch', tempDir]))
+//     .then(() => fs.copy(
+//       baselineScreenshotsDir,
+//       path.resolve(tempDir, baselineScreenshotsDir)
+//     ))
+//     .then(() => exec('git', ['checkout', branch], opts))
+//     .then(() => exec('git', ['status'], opts))
+//     .then(() => exec('git', ['add', baselineScreenshotsDir], opts))
+//     .then(() => exec('git', [
+//       'commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`
+//     ], opts))
+//     .then(() => exec('git', ['push', '-fq', 'origin', branch], opts))
+//     .then(() => {
+//       logger.info('New baseline images saved.');
+//     });
+// }
+// export async function checkScreenshots(): Promise<any> {
+//   // Don't commit new visual baseline images during a pull request.
+//   if (process.env.TRAVIS_PULL_REQUEST !== 'false') {
+//     logger.info('New visual baseline images are not saved during a pull request. Aborting script.');
+//     return Promise.resolve();
+//   }
+//   logger.info('Checking new visual baseline images...');
+//   return Promise.resolve()
+//     .then(() => dirHasChanges(baselineScreenshotsDir))
+//     .then((hasChanges) => {
+//       if (hasChanges) {
+//         logger.info('New baseline images detected.');
+//         return handleBaselineScreenshots();
+//       }
+//       logger.info('No new baseline images detected. Done.');
+//     });
+// }
+// // checkScreenshots()
+// //   .then(() => {
+// //     rimraf.sync(tempDir);
+// //     process.exit(0);
+// //   })
+// //   .catch((err) => {
+// //     logger.error(err);
+// //     rimraf.sync(tempDir);
+// //     process.exit(1);
+// //   });
 
 
 /***/ })

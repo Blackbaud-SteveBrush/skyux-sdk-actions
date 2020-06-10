@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-// import { checkScreenshots } from './visual-baselines';
+import { checkScreenshots } from './visual-baselines';
 import { spawn } from './spawn';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
@@ -31,7 +31,7 @@ async function coverage() {
 
 async function visual() {
   await runSkyUxCommand('e2e');
-  // await checkScreenshots();
+  await checkScreenshots();
 
   // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
   // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
@@ -39,22 +39,25 @@ async function visual() {
 
 async function buildLibrary() {
   await runSkyUxCommand('build-public-library');
-
-  /**
-   * const npmTag = 'latest';
-   * npm publish --access public --tag $npmTag;
-   * notifySlack();
-   */
 }
+
+// async function publishLibrary() {
+//   /**
+//    * const npmTag = 'latest';
+//    * npm publish --access public --tag $npmTag;
+//    * notifySlack();
+//    */
+// }
 
 async function run(): Promise<void> {
   try {
     await install();
     await installCerts();
-    await build();
-    await coverage();
+    // await build();
+    // await coverage();
     await visual();
-    await buildLibrary();
+    // await buildLibrary();
+    // await publishLibrary();
   } catch (error) {
     core.setFailed(error);
     console.log('ERROR:', error);

@@ -3,17 +3,12 @@ import * as core from '@actions/core';
 import * as path from 'path';
 
 export async function checkScreenshots() {
-  const baselineScreenshotsDir = path.resolve(core.getInput('working-directory'), 'screenshots-baseline');
+  const baselineScreenshotsDir = 'screenshots-baseline';
   const hasChanges = await directoryHasChanges(baselineScreenshotsDir);
   if (hasChanges) {
     console.log('Has changes!', baselineScreenshotsDir);
   } else {
-    const hasOtherChanges = await directoryHasChanges('screenshots-baseline');
-    if (hasOtherChanges) {
-      console.log('They were saved in the root, lol.');
-    } else {
-      console.log('no changes found :-(', baselineScreenshotsDir);
-    }
+    console.log('no changes found :-(', baselineScreenshotsDir);
   }
 }
 

@@ -1193,6 +1193,7 @@ function spawn(command, args = []) {
             if (childProcess.stdout) {
                 childProcess.stdout.on('data', (data) => {
                     output = data.toString('utf8');
+                    console.log('CHILD SPAWN OUTPUT!', output);
                 });
             }
             let errorMessage;
@@ -1326,32 +1327,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const directory_has_changes_1 = __webpack_require__(229);
-const core = __importStar(__webpack_require__(470));
-const path = __importStar(__webpack_require__(622));
 function checkScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
-        const baselineScreenshotsDir = path.resolve(core.getInput('working-directory'), 'screenshots-baseline');
+        const baselineScreenshotsDir = 'screenshots-baseline';
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(baselineScreenshotsDir);
         if (hasChanges) {
             console.log('Has changes!', baselineScreenshotsDir);
         }
         else {
-            const hasOtherChanges = yield directory_has_changes_1.directoryHasChanges('screenshots-baseline');
-            if (hasOtherChanges) {
-                console.log('They were saved in the root, lol.');
-            }
-            else {
-                console.log('no changes found :-(', baselineScreenshotsDir);
-            }
+            console.log('no changes found :-(', baselineScreenshotsDir);
         }
     });
 }

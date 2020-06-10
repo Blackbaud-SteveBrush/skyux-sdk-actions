@@ -11,11 +11,11 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
   });
 
   return new Promise((resolve, reject) => {
-
     let output: string;
     if (childProcess.stdout) {
       childProcess.stdout.on('data', (data) => {
         output = data.toString('utf8');
+        console.log('CHILD SPAWN OUTPUT!', output);
       });
     }
 

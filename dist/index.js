@@ -226,18 +226,18 @@ function installCerts() {
     runCommand('npx', '-p @skyux-sdk/cli@next skyux certs install');
 }
 function install() {
-    runCommand('npm', 'install');
+    runCommand('npm', 'ci');
     runCommand('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
 }
 function build() {
-    runCommand('npx', '-p @skyux-sdk/cli@next skyux build');
+    runCommand('npx', '-p @skyux-sdk/cli@next skyux build --logFormat none');
 }
 function coverage() {
-    runCommand('npx', '-p @skyux-sdk/cli@next skyux test --coverage library --platform travis');
+    runCommand('npx', '-p @skyux-sdk/cli@next skyux test --coverage library --platform travis --logFormat none');
     runCommand('bash', '<(curl -s https://codecov.io/bash)');
 }
 function visual() {
-    runCommand('npx', '-p @skyux-sdk/cli@next skyux e2e --platform travis');
+    runCommand('npx', '-p @skyux-sdk/cli@next skyux e2e --platform travis --logFormat none');
     // runCommand('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
     // runCommand('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
 }

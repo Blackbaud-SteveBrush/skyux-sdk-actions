@@ -36,7 +36,7 @@ function coverage() {
 }
 
 function visual() {
-  runCommand('npx', '-p @skyux-sdk/cli@next skyux e2e --platform travis');
+  runCommand('npx', '-p @skyux-sdk/cli@next skyux e2e --platform travis --logFormat none');
   // runCommand('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
   // runCommand('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
 }
@@ -57,8 +57,8 @@ async function run(): Promise<void> {
     installCerts();
     build();
     coverage();
-    // visual();
-    // buildLibrary();
+    visual();
+    buildLibrary();
   } catch (error) {
     // core.setFailed(error.message);
     console.log('ERROR:', error);

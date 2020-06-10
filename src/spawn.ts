@@ -7,7 +7,7 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
 
   const spawn = require('child_process').spawn;
   // Create a child process
-  var child = spawn('ls' , ['-l']);
+  var child = spawn(command , args);
 
   return new Promise((resolve, reject) => {
     child.stdout.on('data', function (data: any) {

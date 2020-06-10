@@ -552,7 +552,7 @@ function spawn(command, args = []) {
     return __awaiter(this, void 0, void 0, function* () {
         const spawn = __webpack_require__(129).spawn;
         // Create a child process
-        var child = spawn('ls', ['-l']);
+        var child = spawn(command, args);
         return new Promise((resolve, reject) => {
             child.stdout.on('data', function (data) {
                 console.log('ls command output: ' + data);

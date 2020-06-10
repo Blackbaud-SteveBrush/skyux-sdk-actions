@@ -1178,19 +1178,23 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-const cross_spawn_1 = __webpack_require__(20);
+const cross_spawn_1 = __importDefault(__webpack_require__(20));
 const path = __importStar(__webpack_require__(622));
 function spawn(command, args = []) {
     return __awaiter(this, void 0, void 0, function* () {
-        const childProcess = cross_spawn_1.spawn(command, args, {
+        const childProcess = cross_spawn_1.default(command, args, {
             stdio: 'inherit',
             cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
         });
         return new Promise((resolve, reject) => {
             let output;
             if (childProcess.stdout) {
+                console.log('There\'s an stdout!!!!!');
                 childProcess.stdout.on('data', (data) => {
                     output = data.toString('utf8');
                     console.log('CHILD SPAWN OUTPUT!', output);

@@ -1,6 +1,6 @@
 
 import * as core from '@actions/core';
-import { spawn as crossSpawn } from 'cross-spawn';
+import crossSpawn from 'cross-spawn';
 import * as path from 'path';
 
 export async function spawn(command: string, args: string[] = []): Promise<string> {
@@ -13,6 +13,7 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
   return new Promise((resolve, reject) => {
     let output: string;
     if (childProcess.stdout) {
+      console.log('There\'s an stdout!!!!!');
       childProcess.stdout.on('data', (data) => {
         output = data.toString('utf8');
         console.log('CHILD SPAWN OUTPUT!', output);

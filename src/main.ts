@@ -55,7 +55,7 @@ async function run(): Promise<void> {
   try {
     install();
     installCerts();
-    // build();
+    build();
     coverage();
     // visual();
     // buildLibrary();

@@ -1,5 +1,8 @@
 // import { checkScreenshots } from './visual-baselines';
+import * as core from '@actions/core';
 import { execute } from './execute';
+import child_process from 'child_process';
+import * as path from 'path';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
   return execute('npx', [
@@ -27,10 +30,24 @@ async function build() {
 async function coverage() {
   await runSkyUxCommand('test', ['--coverage', 'library']);
 
-  await execute('bash', ['<(curl -s https://codecov.io/bash)', '-v']).catch((err) => {
-    console.log('Coverage failed! Are you in test mode?', err);
-    return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    child_process.exec('bash <(curl -s https://codecov.io/bash)', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        reject(error);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+      resolve();
+    });
   });
+
+
+  // await execute('bash', ['<(curl -s https://codecov.io/bash)', '-v']).catch((err) => {
+  //   console.log('Coverage failed! Are you in test mode?', err);
+  //   return Promise.resolve();
+  // });
 }
 
 async function visual() {

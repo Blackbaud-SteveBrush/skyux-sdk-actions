@@ -196,9 +196,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-// import { checkScreenshots } from './visual-baselines';
 const execute_1 = __webpack_require__(217);
+const child_process_1 = __importDefault(__webpack_require__(129));
 function runSkyUxCommand(command, args) {
     return execute_1.execute('npx', [
         '-p', '@skyux-sdk/cli@next',
@@ -227,10 +230,22 @@ function build() {
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
         yield runSkyUxCommand('test', ['--coverage', 'library']);
-        yield execute_1.execute('bash', ['<(curl -s https://codecov.io/bash)', '-v']).catch((err) => {
-            console.log('Coverage failed! Are you in test mode?', err);
-            return Promise.resolve();
+        return new Promise((resolve, reject) => {
+            child_process_1.default.exec('bash <(curl -s https://codecov.io/bash)', (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`exec error: ${error}`);
+                    reject(error);
+                    return;
+                }
+                console.log(`stdout: ${stdout}`);
+                console.error(`stderr: ${stderr}`);
+                resolve();
+            });
         });
+        // await execute('bash', ['<(curl -s https://codecov.io/bash)', '-v']).catch((err) => {
+        //   console.log('Coverage failed! Are you in test mode?', err);
+        //   return Promise.resolve();
+        // });
     });
 }
 function visual() {

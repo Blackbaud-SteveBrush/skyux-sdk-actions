@@ -1,48 +1,38 @@
-import * as core from '@actions/core';
-import spawn from 'cross-spawn';
-import * as path from 'path';
+// import { checkScreenshots } from './visual-baselines';
+import { execute } from './execute';
 
-function runCommand(name: string, args: string): void {
-  const result = spawn.sync(name, args.split(' '), {
-    stdio: 'inherit',
-    cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-  });
-
-  if (result.error) {
-    throw result.error;
-  }
-
-  if (result.status === 1) {
-    throw new Error('Something bad happened.');
-  }
+function runSkyUxCommand(command: string, args?: string): Promise<string> {
+  return execute('npx', `-p @skyux-sdk/cli@next skyux ${command} --logFormat none --platform travis ${args}`);
 }
 
-function installCerts() {
-  runCommand('npx', '-p @skyux-sdk/cli@next skyux certs install');
+async function installCerts(): Promise<void> {
+  await runSkyUxCommand('certs', 'install');
 }
 
-function install() {
-  runCommand('npm', 'ci');
-  runCommand('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
+async function install(): Promise<void> {
+  await execute('npm', 'ci');
+  await execute('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
 }
 
-function build() {
-  runCommand('npx', '-p @skyux-sdk/cli@next skyux build --logFormat none');
+async function build() {
+  await runSkyUxCommand('build');
 }
 
-function coverage() {
-  runCommand('npx', '-p @skyux-sdk/cli@next skyux test --coverage library --platform travis --logFormat none');
-  runCommand('bash', '<(curl -s https://codecov.io/bash)');
+async function coverage() {
+  await runSkyUxCommand('test', '--coverage library');
+  await execute('bash', '<(curl -s https://codecov.io/bash)');
 }
 
-function visual() {
-  runCommand('npx', '-p @skyux-sdk/cli@next skyux e2e --platform travis --logFormat none');
-  // runCommand('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
-  // runCommand('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
+async function visual() {
+  await runSkyUxCommand('e2e');
+  // await checkScreenshots();
+
+  // execute('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
+  // execute('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
 }
 
-function buildLibrary() {
-  runCommand('npx', '-p @skyux-sdk/cli@next skyux build-public-library');
+async function buildLibrary() {
+  await runSkyUxCommand('build-public-library');
 
   /**
    * const npmTag = 'latest';
@@ -53,12 +43,12 @@ function buildLibrary() {
 
 async function run(): Promise<void> {
   try {
-    install();
-    installCerts();
-    build();
-    coverage();
-    visual();
-    buildLibrary();
+    await install();
+    await installCerts();
+    await build();
+    await coverage();
+    await visual();
+    await buildLibrary();
   } catch (error) {
     // core.setFailed(error.message);
     console.log('ERROR:', error);

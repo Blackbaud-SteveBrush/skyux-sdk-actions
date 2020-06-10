@@ -196,6 +196,88 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+// import { checkScreenshots } from './visual-baselines';
+const execute_1 = __webpack_require__(217);
+function runSkyUxCommand(command, args) {
+    return execute_1.execute('npx', `-p @skyux-sdk/cli@next skyux ${command} --logFormat none --platform travis ${args}`);
+}
+function installCerts() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield runSkyUxCommand('certs', 'install');
+    });
+}
+function install() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield execute_1.execute('npm', 'ci');
+        yield execute_1.execute('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
+    });
+}
+function build() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield runSkyUxCommand('build');
+    });
+}
+function coverage() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield runSkyUxCommand('test', '--coverage library');
+        yield execute_1.execute('bash', '<(curl -s https://codecov.io/bash)');
+    });
+}
+function visual() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield runSkyUxCommand('e2e');
+        // await checkScreenshots();
+        // execute('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
+        // execute('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
+    });
+}
+function buildLibrary() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield runSkyUxCommand('build-public-library');
+        /**
+         * const npmTag = 'latest';
+         * npm publish --access public --tag $npmTag;
+         * notifySlack();
+         */
+    });
+}
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield install();
+            yield installCerts();
+            yield build();
+            yield coverage();
+            yield visual();
+            yield buildLibrary();
+        }
+        catch (error) {
+            // core.setFailed(error.message);
+            console.log('ERROR:', error);
+            process.exit(1);
+        }
+    });
+}
+run();
+
+
+/***/ }),
+
+/***/ 217:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -210,63 +292,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const cross_spawn_1 = __importDefault(__webpack_require__(20));
 const path = __importStar(__webpack_require__(622));
-function runCommand(name, args) {
-    const result = cross_spawn_1.default.sync(name, args.split(' '), {
-        stdio: 'inherit',
-        cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-    });
-    if (result.error) {
-        throw result.error;
-    }
-    if (result.status === 1) {
-        throw new Error('Something bad happened.');
-    }
-}
-function installCerts() {
-    runCommand('npx', '-p @skyux-sdk/cli@next skyux certs install');
-}
-function install() {
-    runCommand('npm', 'ci');
-    runCommand('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
-}
-function build() {
-    runCommand('npx', '-p @skyux-sdk/cli@next skyux build --logFormat none');
-}
-function coverage() {
-    runCommand('npx', '-p @skyux-sdk/cli@next skyux test --coverage library --platform travis --logFormat none');
-    runCommand('bash', '<(curl -s https://codecov.io/bash)');
-}
-function visual() {
-    runCommand('npx', '-p @skyux-sdk/cli@next skyux e2e --platform travis --logFormat none');
-    // runCommand('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
-    // runCommand('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
-}
-function buildLibrary() {
-    runCommand('npx', '-p @skyux-sdk/cli@next skyux build-public-library');
-    /**
-     * const npmTag = 'latest';
-     * npm publish --access public --tag $npmTag;
-     * notifySlack();
-     */
-}
-function run() {
+function execute(command, args) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            install();
-            installCerts();
-            build();
-            coverage();
-            visual();
-            buildLibrary();
-        }
-        catch (error) {
-            // core.setFailed(error.message);
-            console.log('ERROR:', error);
-            process.exit(1);
-        }
+        const childProcess = cross_spawn_1.default(command, args.split(' '), {
+            stdio: 'inherit',
+            cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
+        });
+        return new Promise((resolve) => {
+            let output;
+            if (childProcess.stdout) {
+                childProcess.stdout.on('data', (data) => {
+                    output = data.toString('utf8');
+                });
+            }
+            let errorMessage;
+            if (childProcess.stderr) {
+                childProcess.stderr.on('data', (data) => {
+                    errorMessage = data.toString('utf8');
+                });
+            }
+            childProcess.on('error', (err) => {
+                throw err;
+            });
+            childProcess.on('exit', (code) => {
+                if (code === 0) {
+                    console.log('EXECUTE OUTPUT:', output);
+                    resolve(output);
+                }
+                else {
+                    throw new Error(errorMessage);
+                }
+            });
+        });
     });
 }
-run();
+exports.execute = execute;
 
 
 /***/ }),

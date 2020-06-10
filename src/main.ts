@@ -1,11 +1,9 @@
-// import { checkScreenshots } from './visual-baselines';
 import * as core from '@actions/core';
-import { execute } from './execute';
-import child_process from 'child_process';
-import * as path from 'path';
+// import { checkScreenshots } from './visual-baselines';
+import { spawn } from './spawn';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
-  return execute('npx', [
+  return spawn('npx', [
     '-p', '@skyux-sdk/cli@next',
     'skyux', command,
     '--logFormat', 'none',
@@ -19,8 +17,8 @@ async function installCerts(): Promise<void> {
 }
 
 async function install(): Promise<void> {
-  await execute('npm', ['ci']);
-  await execute('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+  await spawn('npm', ['ci']);
+  await spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
 }
 
 async function build() {
@@ -29,33 +27,14 @@ async function build() {
 
 async function coverage() {
   await runSkyUxCommand('test', ['--coverage', 'library']);
-
-  return new Promise((resolve, reject) => {
-    child_process.exec('bash <(curl -s https://codecov.io/bash)', (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        reject(error);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-      console.error(`stderr: ${stderr}`);
-      resolve();
-    });
-  });
-
-
-  // await execute('bash', ['<(curl -s https://codecov.io/bash)', '-v']).catch((err) => {
-  //   console.log('Coverage failed! Are you in test mode?', err);
-  //   return Promise.resolve();
-  // });
 }
 
 async function visual() {
   await runSkyUxCommand('e2e');
   // await checkScreenshots();
 
-  // execute('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
-  // execute('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
+  // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
+  // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
 }
 
 async function buildLibrary() {
@@ -77,7 +56,7 @@ async function run(): Promise<void> {
     await visual();
     await buildLibrary();
   } catch (error) {
-    // core.setFailed(error.message);
+    core.setFailed(error);
     console.log('ERROR:', error);
     process.exit(1);
   }

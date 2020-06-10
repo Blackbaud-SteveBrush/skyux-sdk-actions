@@ -196,14 +196,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const execute_1 = __webpack_require__(217);
-const child_process_1 = __importDefault(__webpack_require__(129));
+const core = __importStar(__webpack_require__(470));
+// import { checkScreenshots } from './visual-baselines';
+const spawn_1 = __webpack_require__(820);
 function runSkyUxCommand(command, args) {
-    return execute_1.execute('npx', [
+    return spawn_1.spawn('npx', [
         '-p', '@skyux-sdk/cli@next',
         'skyux', command,
         '--logFormat', 'none',
@@ -218,8 +223,8 @@ function installCerts() {
 }
 function install() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield execute_1.execute('npm', ['ci']);
-        yield execute_1.execute('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+        yield spawn_1.spawn('npm', ['ci']);
+        yield spawn_1.spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
     });
 }
 function build() {
@@ -230,30 +235,14 @@ function build() {
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
         yield runSkyUxCommand('test', ['--coverage', 'library']);
-        return new Promise((resolve, reject) => {
-            child_process_1.default.exec('bash <(curl -s https://codecov.io/bash)', (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`exec error: ${error}`);
-                    reject(error);
-                    return;
-                }
-                console.log(`stdout: ${stdout}`);
-                console.error(`stderr: ${stderr}`);
-                resolve();
-            });
-        });
-        // await execute('bash', ['<(curl -s https://codecov.io/bash)', '-v']).catch((err) => {
-        //   console.log('Coverage failed! Are you in test mode?', err);
-        //   return Promise.resolve();
-        // });
     });
 }
 function visual() {
     return __awaiter(this, void 0, void 0, function* () {
         yield runSkyUxCommand('e2e');
         // await checkScreenshots();
-        // execute('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
-        // execute('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
+        // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
+        // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
     });
 }
 function buildLibrary() {
@@ -277,79 +266,13 @@ function run() {
             yield buildLibrary();
         }
         catch (error) {
-            // core.setFailed(error.message);
+            core.setFailed(error);
             console.log('ERROR:', error);
             process.exit(1);
         }
     });
 }
 run();
-
-
-/***/ }),
-
-/***/ 217:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(470));
-const cross_spawn_1 = __webpack_require__(20);
-const path = __importStar(__webpack_require__(622));
-function execute(command, args) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const childProcess = cross_spawn_1.spawn(command, args, {
-            stdio: 'inherit',
-            cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-        });
-        return new Promise((resolve, reject) => {
-            let output;
-            if (childProcess.stdout) {
-                childProcess.stdout.on('data', (data) => {
-                    output = data.toString('utf8');
-                });
-            }
-            let errorMessage;
-            if (childProcess.stderr) {
-                childProcess.stderr.on('data', (data) => {
-                    errorMessage = data.toString('utf8');
-                });
-            }
-            childProcess.on('error', (err) => {
-                console.log('CHILD PROCESS ON ERROR:', err);
-                throw err;
-            });
-            childProcess.on('exit', (code) => {
-                if (code === 0) {
-                    console.log('EXECUTE OUTPUT:', output);
-                    resolve(output);
-                }
-                else {
-                    console.log('CHILD PROCESS STDERR:', errorMessage);
-                    reject(errorMessage);
-                }
-            });
-        });
-    });
-}
-exports.execute = execute;
 
 
 /***/ }),
@@ -1190,6 +1113,67 @@ function isexe (path, options, cb) {
 function sync (path, options) {
   return checkStat(fs.statSync(path), path, options)
 }
+
+
+/***/ }),
+
+/***/ 820:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(470));
+const cross_spawn_1 = __webpack_require__(20);
+const path = __importStar(__webpack_require__(622));
+function spawn(command, args = []) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const childProcess = cross_spawn_1.spawn(command, args, {
+            stdio: 'inherit',
+            cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
+        });
+        return new Promise((resolve, reject) => {
+            let output;
+            if (childProcess.stdout) {
+                childProcess.stdout.on('data', (data) => {
+                    output = data.toString('utf8');
+                });
+            }
+            let errorMessage;
+            if (childProcess.stderr) {
+                childProcess.stderr.on('data', (data) => {
+                    errorMessage = data.toString('utf8');
+                });
+            }
+            childProcess.on('error', (err) => reject(err));
+            childProcess.on('exit', (code) => {
+                if (code === 0) {
+                    resolve(output);
+                }
+                else {
+                    reject(errorMessage);
+                }
+            });
+        });
+    });
+}
+exports.spawn = spawn;
 
 
 /***/ }),

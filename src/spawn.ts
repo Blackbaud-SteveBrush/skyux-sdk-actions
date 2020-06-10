@@ -1,10 +1,11 @@
 
 import * as core from '@actions/core';
-import { spawn } from 'cross-spawn';
+import { spawn as crossSpawn } from 'cross-spawn';
 import * as path from 'path';
 
-export async function execute(command: string, args: string[]): Promise<string> {
-  const childProcess = spawn(command, args, {
+export async function spawn(command: string, args: string[] = []): Promise<string> {
+
+  const childProcess = crossSpawn(command, args, {
     stdio: 'inherit',
     cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
   });
@@ -25,17 +26,12 @@ export async function execute(command: string, args: string[]): Promise<string> 
       });
     }
 
-    childProcess.on('error', (err) => {
-      console.log('CHILD PROCESS ON ERROR:', err);
-      throw err;
-    });
+    childProcess.on('error', (err) => reject(err));
 
     childProcess.on('exit', (code) => {
       if (code === 0) {
-        console.log('EXECUTE OUTPUT:', output);
         resolve(output);
       } else {
-        console.log('CHILD PROCESS STDERR:', errorMessage);
         reject(errorMessage);
       }
     });

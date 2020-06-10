@@ -1,4 +1,8 @@
 // import { checkScreenshots } from './visual-baselines';
+
+import * as core from '@actions/core';
+import spawn from 'cross-spawn';
+import * as path from 'path';
 import { execute } from './execute';
 
 function runSkyUxCommand(command: string, args?: string): Promise<string> {
@@ -20,7 +24,11 @@ async function build() {
 
 async function coverage() {
   await runSkyUxCommand('test', '--coverage library');
-  await execute('bash', '<(curl -s https://codecov.io/bash)');
+  // await execute('bash', '<(curl -s https://codecov.io/bash)');
+  spawn.sync('bash', ['<(curl -s https://codecov.io/bash)'], {
+    stdio: 'inherit',
+    cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
+  });
 }
 
 async function visual() {

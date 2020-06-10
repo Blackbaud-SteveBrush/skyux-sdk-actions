@@ -187,6 +187,7 @@ function checkMode (stat, options) {
 
 "use strict";
 
+// import { checkScreenshots } from './visual-baselines';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -196,8 +197,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-// import { checkScreenshots } from './visual-baselines';
+const core = __importStar(__webpack_require__(470));
+const cross_spawn_1 = __importDefault(__webpack_require__(20));
+const path = __importStar(__webpack_require__(622));
 const execute_1 = __webpack_require__(217);
 function runSkyUxCommand(command, args) {
     return execute_1.execute('npx', `-p @skyux-sdk/cli@next skyux ${command} --logFormat none --platform travis ${args}`);
@@ -221,7 +234,11 @@ function build() {
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
         yield runSkyUxCommand('test', '--coverage library');
-        yield execute_1.execute('bash', '<(curl -s https://codecov.io/bash)');
+        // await execute('bash', '<(curl -s https://codecov.io/bash)');
+        cross_spawn_1.default.sync('bash', ['<(curl -s https://codecov.io/bash)'], {
+            stdio: 'inherit',
+            cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
+        });
     });
 }
 function visual() {

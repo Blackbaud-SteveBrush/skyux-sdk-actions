@@ -300,6 +300,7 @@ function directoryHasChanges(dir) {
     return __awaiter(this, void 0, void 0, function* () {
         const output = yield spawn_1.spawn('git', ['status', dir, '--porcelain', '--verbose']);
         if (!output) {
+            console.log('NO OUTPUTT?????', output);
             return false;
         }
         const result = output.trim();

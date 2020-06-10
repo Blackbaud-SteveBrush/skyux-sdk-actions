@@ -24,14 +24,49 @@ async function build() {
 
 async function coverage() {
   await runSkyUxCommand('test', '--coverage library');
-  await execute('bash', '<(curl -s https://codecov.io/bash)', {
-    spawnOptions: {
-      cwd: process.cwd()
-    }
-  }).catch(() => {
-    console.log('Coverage failed!');
-    return Promise.resolve();
+
+  const childProcess = spawn('bash', ['<(curl -s https://codecov.io/bash)'], {
+    stdio: 'inherit'
   });
+
+  return new Promise((resolve, reject) => {
+    let output: string;
+    if (childProcess.stdout) {
+      childProcess.stdout.on('data', (data) => {
+        output = data.toString('utf8');
+      });
+    }
+
+    let errorMessage: string;
+    if (childProcess.stderr) {
+      childProcess.stderr.on('data', (data) => {
+        errorMessage = data.toString('utf8');
+      });
+    }
+
+    childProcess.on('error', (err) => {
+      console.log('CHILD PROCESS ON ERROR:', err);
+      throw err;
+    });
+
+    childProcess.on('exit', (code) => {
+      if (code === 0) {
+        console.log('EXECUTE OUTPUT:', output);
+        resolve(output);
+      } else {
+        console.log('CHILD PROCESS STDERR:', errorMessage);
+        reject(errorMessage);
+      }
+    });
+  });
+  // await execute('bash', '<(curl -s https://codecov.io/bash)', {
+  //   spawnOptions: {
+  //     cwd: process.cwd()
+  //   }
+  // }).catch(() => {
+  //   console.log('Coverage failed!');
+  //   return Promise.resolve();
+  // });
   // spawn.sync('bash <(curl -s https://codecov.io/bash)', {
   //   stdio: 'inherit',
   //   cwd: path.resolve(process.cwd(), core.getInput('working-directory'))

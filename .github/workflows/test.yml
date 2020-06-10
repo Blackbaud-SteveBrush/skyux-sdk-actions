@@ -16,6 +16,7 @@ jobs:
         npm run build
         npm run pack
         npm test
+        bash <(curl -s https://codecov.io/bash)
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:

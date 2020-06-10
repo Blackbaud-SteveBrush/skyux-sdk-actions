@@ -187,7 +187,6 @@ function checkMode (stat, options) {
 
 "use strict";
 
-// import { checkScreenshots } from './visual-baselines';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -197,24 +196,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const cross_spawn_1 = __importDefault(__webpack_require__(20));
+// import { checkScreenshots } from './visual-baselines';
 const execute_1 = __webpack_require__(217);
 function runSkyUxCommand(command, args) {
-    return execute_1.execute('npx', `-p @skyux-sdk/cli@next skyux ${command} --logFormat none --platform travis ${args}`);
+    return execute_1.execute('npx', [
+        '-p', '@skyux-sdk/cli@next',
+        'skyux', command,
+        '--logFormat', 'none',
+        '--platform', 'travis',
+        ...args || ''
+    ]);
 }
 function installCerts() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield runSkyUxCommand('certs', 'install');
+        yield runSkyUxCommand('certs', ['install']);
     });
 }
 function install() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield execute_1.execute('npm', 'ci');
-        yield execute_1.execute('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
+        yield execute_1.execute('npm', ['ci']);
+        yield execute_1.execute('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
     });
 }
 function build() {
@@ -224,50 +226,11 @@ function build() {
 }
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield runSkyUxCommand('test', '--coverage library');
-        const childProcess = cross_spawn_1.default('bash', ['<(curl -s https://codecov.io/bash)'], {
-            stdio: 'inherit'
+        yield runSkyUxCommand('test', ['--coverage', 'library']);
+        yield execute_1.execute('bash', ['<(curl -s https://codecov.io/bash)']).catch(() => {
+            console.log('Coverage failed! Are you in test mode?');
+            return Promise.resolve();
         });
-        return new Promise((resolve, reject) => {
-            let output;
-            if (childProcess.stdout) {
-                childProcess.stdout.on('data', (data) => {
-                    output = data.toString('utf8');
-                });
-            }
-            let errorMessage;
-            if (childProcess.stderr) {
-                childProcess.stderr.on('data', (data) => {
-                    errorMessage = data.toString('utf8');
-                });
-            }
-            childProcess.on('error', (err) => {
-                console.log('CHILD PROCESS ON ERROR:', err);
-                throw err;
-            });
-            childProcess.on('exit', (code) => {
-                if (code === 0) {
-                    console.log('EXECUTE OUTPUT:', output);
-                    resolve(output);
-                }
-                else {
-                    console.log('CHILD PROCESS STDERR:', errorMessage);
-                    reject(errorMessage);
-                }
-            });
-        });
-        // await execute('bash', '<(curl -s https://codecov.io/bash)', {
-        //   spawnOptions: {
-        //     cwd: process.cwd()
-        //   }
-        // }).catch(() => {
-        //   console.log('Coverage failed!');
-        //   return Promise.resolve();
-        // });
-        // spawn.sync('bash <(curl -s https://codecov.io/bash)', {
-        //   stdio: 'inherit',
-        //   cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-        // });
     });
 }
 function visual() {
@@ -335,16 +298,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const cross_spawn_1 = __webpack_require__(20);
 const path = __importStar(__webpack_require__(622));
-function execute(command, args, config) {
+function execute(command, args) {
     return __awaiter(this, void 0, void 0, function* () {
-        let spawnOptions = {
+        const childProcess = cross_spawn_1.spawn(command, args, {
             stdio: 'inherit',
             cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-        };
-        if (config && config.spawnOptions) {
-            spawnOptions = Object.assign(Object.assign({}, spawnOptions), config.spawnOptions);
-        }
-        const childProcess = cross_spawn_1.spawn(command, args.split(' '), spawnOptions);
+        });
         return new Promise((resolve, reject) => {
             let output;
             if (childProcess.stdout) {

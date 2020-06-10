@@ -1,23 +1,13 @@
 
 import * as core from '@actions/core';
 import { spawn } from 'cross-spawn';
-import * as child_process from 'child_process';
 import * as path from 'path';
 
-export async function execute(command: string, args: string, config?: {
-  spawnOptions: child_process.SpawnOptions
-}): Promise<string> {
-
-  let spawnOptions: child_process.SpawnOptions = {
+export async function execute(command: string, args: string[]): Promise<string> {
+  const childProcess = spawn(command, args, {
     stdio: 'inherit',
     cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-  };
-
-  if (config && config.spawnOptions) {
-    spawnOptions = {...spawnOptions, ...config.spawnOptions};
-  }
-
-  const childProcess = spawn(command, args.split(' '), spawnOptions);
+  });
 
   return new Promise((resolve, reject) => {
 

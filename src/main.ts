@@ -1,21 +1,23 @@
 // import { checkScreenshots } from './visual-baselines';
-
-import * as core from '@actions/core';
-import spawn from 'cross-spawn';
-import * as path from 'path';
 import { execute } from './execute';
 
-function runSkyUxCommand(command: string, args?: string): Promise<string> {
-  return execute('npx', `-p @skyux-sdk/cli@next skyux ${command} --logFormat none --platform travis ${args}`);
+function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
+  return execute('npx', [
+    '-p', '@skyux-sdk/cli@next',
+    'skyux', command,
+    '--logFormat', 'none',
+    '--platform', 'travis',
+    ...args || ''
+  ]);
 }
 
 async function installCerts(): Promise<void> {
-  await runSkyUxCommand('certs', 'install');
+  await runSkyUxCommand('certs', ['install']);
 }
 
 async function install(): Promise<void> {
-  await execute('npm', 'ci');
-  await execute('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
+  await execute('npm', ['ci']);
+  await execute('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
 }
 
 async function build() {
@@ -23,54 +25,12 @@ async function build() {
 }
 
 async function coverage() {
-  await runSkyUxCommand('test', '--coverage library');
+  await runSkyUxCommand('test', ['--coverage', 'library']);
 
-  const childProcess = spawn('bash', ['<(curl -s https://codecov.io/bash)'], {
-    stdio: 'inherit'
+  await execute('bash', ['<(curl -s https://codecov.io/bash)']).catch(() => {
+    console.log('Coverage failed! Are you in test mode?');
+    return Promise.resolve();
   });
-
-  return new Promise((resolve, reject) => {
-    let output: string;
-    if (childProcess.stdout) {
-      childProcess.stdout.on('data', (data) => {
-        output = data.toString('utf8');
-      });
-    }
-
-    let errorMessage: string;
-    if (childProcess.stderr) {
-      childProcess.stderr.on('data', (data) => {
-        errorMessage = data.toString('utf8');
-      });
-    }
-
-    childProcess.on('error', (err) => {
-      console.log('CHILD PROCESS ON ERROR:', err);
-      throw err;
-    });
-
-    childProcess.on('exit', (code) => {
-      if (code === 0) {
-        console.log('EXECUTE OUTPUT:', output);
-        resolve(output);
-      } else {
-        console.log('CHILD PROCESS STDERR:', errorMessage);
-        reject(errorMessage);
-      }
-    });
-  });
-  // await execute('bash', '<(curl -s https://codecov.io/bash)', {
-  //   spawnOptions: {
-  //     cwd: process.cwd()
-  //   }
-  // }).catch(() => {
-  //   console.log('Coverage failed!');
-  //   return Promise.resolve();
-  // });
-  // spawn.sync('bash <(curl -s https://codecov.io/bash)', {
-  //   stdio: 'inherit',
-  //   cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-  // });
 }
 
 async function visual() {

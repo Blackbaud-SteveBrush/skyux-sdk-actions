@@ -3,9 +3,9 @@ import * as core from '@actions/core';
 import spawn from 'cross-spawn';
 import * as path from 'path';
 
-export async function execute(command: string, args: string): Promise<string> {
+export async function execute(command: string, args: string[]): Promise<string> {
 
-  const childProcess = spawn(command, args.split(' '), {
+  const childProcess = spawn(command, args, {
     stdio: 'inherit',
     cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
   });

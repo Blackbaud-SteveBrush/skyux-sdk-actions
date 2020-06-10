@@ -1,17 +1,21 @@
 // import { checkScreenshots } from './visual-baselines';
 import { execute } from './execute';
 
-function runSkyUxCommand(command: string, args?: string): Promise<string> {
-  return execute('npx', `-p @skyux-sdk/cli@next skyux ${command} --logFormat none --platform travis ${args}`);
+function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
+  const executeArgs = ['-p', '@skyux-sdk/cli@next', 'skyux', command, '--logFormat', 'none', '--platform', 'travis'];
+  if (args) {
+    executeArgs.concat(args);
+  }
+  return execute('npx', executeArgs);
 }
 
 async function installCerts(): Promise<void> {
-  await runSkyUxCommand('certs', 'install');
+  await runSkyUxCommand('certs', ['install']);
 }
 
 async function install(): Promise<void> {
-  await execute('npm', 'ci');
-  await execute('npm', 'install --no-save --no-package-lock blackbaud/skyux-sdk-builder-config');
+  await execute('npm', ['ci']);
+  await execute('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
 }
 
 async function build() {
@@ -19,8 +23,8 @@ async function build() {
 }
 
 async function coverage() {
-  await runSkyUxCommand('test', '--coverage library');
-  await execute('bash', '<(curl -s https://codecov.io/bash)');
+  await runSkyUxCommand('test', ['--coverage library']);
+  await execute('bash', ['<(curl -s https://codecov.io/bash)']);
 }
 
 async function visual() {

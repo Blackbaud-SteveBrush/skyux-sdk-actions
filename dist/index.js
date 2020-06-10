@@ -227,8 +227,8 @@ function build() {
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
         yield runSkyUxCommand('test', ['--coverage', 'library']);
-        yield execute_1.execute('bash', ['<(curl -s https://codecov.io/bash)']).catch(() => {
-            console.log('Coverage failed! Are you in test mode?');
+        yield execute_1.execute('bash', ['<(curl -s https://codecov.io/bash)', '-v']).catch((err) => {
+            console.log('Coverage failed! Are you in test mode?', err);
             return Promise.resolve();
         });
     });

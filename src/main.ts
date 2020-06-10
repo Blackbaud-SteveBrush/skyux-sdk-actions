@@ -24,7 +24,11 @@ async function build() {
 
 async function coverage() {
   await runSkyUxCommand('test', '--coverage library');
-  await execute('bash', '<(curl -s https://codecov.io/bash)').catch(() => {
+  await execute('bash', '<(curl -s https://codecov.io/bash)', {
+    spawnOptions: {
+      cwd: process.cwd()
+    }
+  }).catch(() => {
     console.log('Coverage failed!');
     return Promise.resolve();
   });

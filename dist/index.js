@@ -221,7 +221,11 @@ function build() {
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
         yield runSkyUxCommand('test', '--coverage library');
-        yield execute_1.execute('bash', '<(curl -s https://codecov.io/bash)').catch(() => {
+        yield execute_1.execute('bash', '<(curl -s https://codecov.io/bash)', {
+            spawnOptions: {
+                cwd: process.cwd()
+            }
+        }).catch(() => {
             console.log('Coverage failed!');
             return Promise.resolve();
         });
@@ -292,19 +296,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-const cross_spawn_1 = __importDefault(__webpack_require__(20));
+const cross_spawn_1 = __webpack_require__(20);
 const path = __importStar(__webpack_require__(622));
-function execute(command, args) {
+function execute(command, args, config) {
     return __awaiter(this, void 0, void 0, function* () {
-        const childProcess = cross_spawn_1.default(command, args.split(' '), {
+        let spawnOptions = {
             stdio: 'inherit',
             cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-        });
+        };
+        if (config && config.spawnOptions) {
+            spawnOptions = Object.assign(Object.assign({}, spawnOptions), config.spawnOptions);
+        }
+        const childProcess = cross_spawn_1.spawn(command, args.split(' '), spawnOptions);
         return new Promise((resolve, reject) => {
             let output;
             if (childProcess.stdout) {

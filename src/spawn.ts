@@ -15,10 +15,12 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
     let output: string;
     if (childProcess.stdout) {
       childProcess.stdout.on('data', (data) => {
-        const fragment = data.toString('utf8').trim();
-        if (fragment) {
-          console.log(fragment);
-          output += fragment;
+        if (data) {
+          const fragment = data.toString('utf8').trim();
+          if (fragment) {
+            console.log(fragment);
+            output += fragment;
+          }
         }
       });
     }

@@ -1192,10 +1192,12 @@ function spawn(command, args = []) {
             let output;
             if (childProcess.stdout) {
                 childProcess.stdout.on('data', (data) => {
-                    const fragment = data.toString('utf8').trim();
-                    if (fragment) {
-                        console.log(fragment);
-                        output += fragment;
+                    if (data) {
+                        const fragment = data.toString('utf8').trim();
+                        if (fragment) {
+                            console.log(fragment);
+                            output += fragment;
+                        }
                     }
                 });
             }

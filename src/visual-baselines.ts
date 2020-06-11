@@ -6,9 +6,9 @@ export async function checkScreenshots() {
   const baselineScreenshotsDir = 'screenshots-baseline';
   const hasChanges = await directoryHasChanges(baselineScreenshotsDir);
   if (hasChanges) {
-    console.log('Has changes!', baselineScreenshotsDir);
+    core.info('New baseline images detected.');
   } else {
-    console.log('no changes found :-(', baselineScreenshotsDir);
+    core.info('No new baseline images detected. Done.');
   }
 }
 

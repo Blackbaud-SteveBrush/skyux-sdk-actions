@@ -298,20 +298,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const spawn_1 = __webpack_require__(820);
 function directoryHasChanges(dir) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('BEFORE directoryHasChanges()');
         const output = yield spawn_1.spawn('git', ['status', dir, '--porcelain']);
         if (!output) {
             return false;
         }
-        console.log('directoryHasChanges() output before trim:', output);
-        const result = output.trim();
-        console.log('AFTER directoryHasChanges() -->', output, result.indexOf('??'));
         // Untracked files are prefixed with '??'
         // Modified files are prefixed with 'M'
         // https://git-scm.com/docs/git-status/1.8.1#_output
         // https://stackoverflow.com/a/6978402/6178885
-        return (result.indexOf('??') === 0 ||
-            result.indexOf('M') === 0);
+        return (output.indexOf('??') === 0 ||
+            output.indexOf('M') === 0);
     });
 }
 exports.directoryHasChanges = directoryHasChanges;
@@ -1197,7 +1193,7 @@ function spawn(command, args = []) {
                     if (data) {
                         const fragment = data.toString('utf8').trim();
                         if (fragment) {
-                            console.log('FRAGMENT:', fragment);
+                            core.info(fragment);
                             output += fragment;
                         }
                     }
@@ -1212,7 +1208,6 @@ function spawn(command, args = []) {
             childProcess.on('error', (err) => reject(err));
             childProcess.on('exit', (code) => {
                 if (code === 0) {
-                    console.log('ON EXIT:', output, code);
                     resolve(output);
                 }
                 else {
@@ -1335,17 +1330,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const directory_has_changes_1 = __webpack_require__(229);
+const core = __importStar(__webpack_require__(470));
 function checkScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
         const baselineScreenshotsDir = 'screenshots-baseline';
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(baselineScreenshotsDir);
         if (hasChanges) {
-            console.log('Has changes!', baselineScreenshotsDir);
+            core.info('New baseline images detected.');
         }
         else {
-            console.log('no changes found :-(', baselineScreenshotsDir);
+            core.info('No new baseline images detected. Done.');
         }
     });
 }

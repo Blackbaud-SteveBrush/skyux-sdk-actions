@@ -1,4 +1,3 @@
-
 import * as core from '@actions/core';
 import { spawn as crossSpawn } from 'cross-spawn';
 import * as path from 'path';
@@ -18,7 +17,7 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
         if (data) {
           const fragment = data.toString('utf8').trim();
           if (fragment) {
-            console.log('FRAGMENT:', fragment);
+            core.info(fragment);
             output += fragment;
           }
         }
@@ -36,7 +35,6 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
 
     childProcess.on('exit', (code) => {
       if (code === 0) {
-        console.log('ON EXIT:', output, code)
         resolve(output);
       } else {
         reject(errorMessage);

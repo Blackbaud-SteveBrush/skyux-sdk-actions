@@ -7284,18 +7284,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const cross_spawn_1 = __webpack_require__(20);
-const path_1 = __importDefault(__webpack_require__(622));
+const path = __importStar(__webpack_require__(622));
 function spawn(command, args = [], spawnOptions) {
     return __awaiter(this, void 0, void 0, function* () {
         const defaults = {
             stdio: 'pipe',
-            cwd: path_1.default.resolve(process.cwd(), core.getInput('working-directory'))
+            cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
         };
         const childProcess = cross_spawn_1.spawn(command, args, Object.assign(Object.assign({}, defaults), spawnOptions));
         return new Promise((resolve, reject) => {
@@ -8139,15 +8136,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const directory_has_changes_1 = __webpack_require__(229);
-const core_1 = __importDefault(__webpack_require__(470));
-const path_1 = __importDefault(__webpack_require__(622));
-const fs_extra_1 = __importDefault(__webpack_require__(226));
-const rimraf_1 = __importDefault(__webpack_require__(569));
+const core = __importStar(__webpack_require__(470));
+const path = __importStar(__webpack_require__(622));
+const fs = __importStar(__webpack_require__(226));
+const rimraf = __importStar(__webpack_require__(569));
 const spawn_1 = __webpack_require__(820);
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
 const TEMP_DIR = '.skypagesvisualbaselinetemp';
@@ -8157,33 +8158,33 @@ function handleBaselineScreenshots() {
         const gitUrl = process.env.VISUAL_BASELINES_REPO_URL;
         const buildId = process.env.GITHUB_RUN_ID;
         if (!gitUrl) {
-            core_1.default.setFailed('The environment variable `VISUAL_BASELINES_REPO_URL` is not set!');
+            core.setFailed('The environment variable `VISUAL_BASELINES_REPO_URL` is not set!');
             return;
         }
         yield spawn_1.spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
         yield spawn_1.spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
         yield spawn_1.spawn('git', ['clone', gitUrl, '--single-branch', TEMP_DIR]);
-        yield fs_extra_1.default.copy(BASELINE_SCREENSHOT_DIR, path_1.default.resolve(TEMP_DIR, BASELINE_SCREENSHOT_DIR));
+        yield fs.copy(BASELINE_SCREENSHOT_DIR, path.resolve(TEMP_DIR, BASELINE_SCREENSHOT_DIR));
         const config = { cwd: TEMP_DIR };
         yield spawn_1.spawn('git', ['checkout', branch], config);
         yield spawn_1.spawn('git', ['status'], config);
         yield spawn_1.spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
         yield spawn_1.spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
         yield spawn_1.spawn('git', ['push', '-fq', 'origin', branch], config);
-        core_1.default.info('New baseline images saved.');
+        core.info('New baseline images saved.');
     });
 }
 function checkScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(BASELINE_SCREENSHOT_DIR);
         if (hasChanges) {
-            core_1.default.info('New baseline images detected.');
+            core.info('New baseline images detected.');
             yield handleBaselineScreenshots();
         }
         else {
-            core_1.default.info('No new baseline images detected. Done.');
+            core.info('No new baseline images detected. Done.');
         }
-        rimraf_1.default.sync(TEMP_DIR);
+        rimraf.sync(TEMP_DIR);
     });
 }
 exports.checkScreenshots = checkScreenshots;

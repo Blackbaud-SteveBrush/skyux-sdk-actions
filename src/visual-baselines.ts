@@ -1,8 +1,8 @@
 import { directoryHasChanges } from './directory-has-changes';
-import core from '@actions/core';
-import path from 'path';
-import fs from 'fs-extra';
-import rimraf from 'rimraf';
+import * as core from '@actions/core';
+import * as path from 'path';
+import * as fs from 'fs-extra';
+import * as rimraf from 'rimraf';
 import { spawn } from './spawn';
 
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';

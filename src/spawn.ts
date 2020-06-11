@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import { spawn as crossSpawn } from 'cross-spawn';
-import path from 'path';
-import child_process from 'child_process';
+import * as path from 'path';
+import * as child_process from 'child_process';
 
 export async function spawn(command: string, args: string[] = [], spawnOptions?: child_process.SpawnOptions): Promise<string> {
 

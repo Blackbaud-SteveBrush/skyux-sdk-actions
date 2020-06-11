@@ -2,14 +2,16 @@ import { spawn } from './spawn';
 
 export async function directoryHasChanges(dir: string) {
 
+  console.log('BEFORE directoryHasChanges()');
   const output = await spawn('git', ['status', dir, '--porcelain']);
   if (!output) {
     return false;
   }
 
+  console.log('directoryHasChanges() output before trim:', output);
   const result = output.trim();
 
-  console.log('directoryHasChanges()?', output, result.indexOf('??'));
+  console.log('AFTER directoryHasChanges() -->', output, result.indexOf('??'));
 
   // Untracked files are prefixed with '??'
   // Modified files are prefixed with 'M'

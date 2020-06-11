@@ -18,7 +18,7 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
         if (data) {
           const fragment = data.toString('utf8').trim();
           if (fragment) {
-            console.log(fragment);
+            console.log('FRAGMENT:', fragment);
             output += fragment;
           }
         }

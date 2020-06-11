@@ -298,12 +298,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const spawn_1 = __webpack_require__(820);
 function directoryHasChanges(dir) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('BEFORE directoryHasChanges()');
         const output = yield spawn_1.spawn('git', ['status', dir, '--porcelain']);
         if (!output) {
             return false;
         }
+        console.log('directoryHasChanges() output before trim:', output);
         const result = output.trim();
-        console.log('directoryHasChanges()?', output, result.indexOf('??'));
+        console.log('AFTER directoryHasChanges() -->', output, result.indexOf('??'));
         // Untracked files are prefixed with '??'
         // Modified files are prefixed with 'M'
         // https://git-scm.com/docs/git-status/1.8.1#_output
@@ -1195,7 +1197,7 @@ function spawn(command, args = []) {
                     if (data) {
                         const fragment = data.toString('utf8').trim();
                         if (fragment) {
-                            console.log(fragment);
+                            console.log('FRAGMENT:', fragment);
                             output += fragment;
                         }
                     }

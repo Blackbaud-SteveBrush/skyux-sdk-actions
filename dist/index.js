@@ -1192,6 +1192,7 @@ function spawn(command, args = []) {
             let output;
             if (childProcess.stdout) {
                 childProcess.stdout.on('data', (data) => {
+                    console.log(data.toString('utf8'));
                     output += data.toString('utf8');
                 });
             }

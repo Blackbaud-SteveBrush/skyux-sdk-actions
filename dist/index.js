@@ -1192,7 +1192,7 @@ function spawn(command, args = []) {
             let output;
             if (childProcess.stdout) {
                 childProcess.stdout.on('data', (data) => {
-                    output = data.toString('utf8');
+                    output += data.toString('utf8');
                 });
             }
             let errorMessage;

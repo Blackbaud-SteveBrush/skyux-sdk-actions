@@ -15,7 +15,7 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
     let output: string;
     if (childProcess.stdout) {
       childProcess.stdout.on('data', (data) => {
-        output = data.toString('utf8');
+        output += data.toString('utf8');
       });
     }
 

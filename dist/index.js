@@ -1191,7 +1191,7 @@ function spawn(command, args = []) {
             cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
         });
         return new Promise((resolve, reject) => {
-            let output;
+            let output = '';
             if (childProcess.stdout) {
                 childProcess.stdout.on('data', (data) => {
                     if (data) {
@@ -1203,7 +1203,7 @@ function spawn(command, args = []) {
                     }
                 });
             }
-            let errorMessage;
+            let errorMessage = '';
             if (childProcess.stderr) {
                 childProcess.stderr.on('data', (data) => {
                     errorMessage = data.toString('utf8');
@@ -1212,6 +1212,7 @@ function spawn(command, args = []) {
             childProcess.on('error', (err) => reject(err));
             childProcess.on('exit', (code) => {
                 if (code === 0) {
+                    console.log('ON EXIT:', output, code);
                     resolve(output);
                 }
                 else {

@@ -12,7 +12,7 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
 
   return new Promise((resolve, reject) => {
 
-    let output: string;
+    let output: string = '';
     if (childProcess.stdout) {
       childProcess.stdout.on('data', (data) => {
         if (data) {
@@ -25,7 +25,7 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
       });
     }
 
-    let errorMessage: string;
+    let errorMessage: string = '';
     if (childProcess.stderr) {
       childProcess.stderr.on('data', (data) => {
         errorMessage = data.toString('utf8');
@@ -36,6 +36,7 @@ export async function spawn(command: string, args: string[] = []): Promise<strin
 
     childProcess.on('exit', (code) => {
       if (code === 0) {
+        console.log('ON EXIT:', output, code)
         resolve(output);
       } else {
         reject(errorMessage);

@@ -1,13 +1,16 @@
 import * as core from '@actions/core';
 import { spawn as crossSpawn } from 'cross-spawn';
-import * as path from 'path';
+import path from 'path';
+import child_process from 'child_process';
 
-export async function spawn(command: string, args: string[] = []): Promise<string> {
+export async function spawn(command: string, args: string[] = [], spawnOptions?: child_process.SpawnOptions): Promise<string> {
 
-  const childProcess = crossSpawn(command, args, {
+  const defaults: child_process.SpawnOptions = {
     stdio: 'pipe',
     cwd: path.resolve(process.cwd(), core.getInput('working-directory'))
-  });
+  };
+
+  const childProcess = crossSpawn(command, args, {...defaults, ...spawnOptions});
 
   return new Promise((resolve, reject) => {
 

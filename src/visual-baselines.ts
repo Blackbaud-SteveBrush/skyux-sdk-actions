@@ -1,7 +1,8 @@
 import { directoryHasChanges } from './directory-has-changes';
-import * as core from '@actions/core';
-import * as path from 'path';
-import * as fs from 'fs-extra';
+import core from '@actions/core';
+import path from 'path';
+import fs from 'fs-extra';
+import rimraf from 'rimraf';
 import { spawn } from './spawn';
 
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
@@ -26,11 +27,13 @@ async function handleBaselineScreenshots() {
     path.resolve(TEMP_DIR, BASELINE_SCREENSHOT_DIR)
   );
 
-  await spawn('git', ['checkout', branch]);
-  await spawn('git', ['status']);
-  await spawn('git', ['add', BASELINE_SCREENSHOT_DIR]);
-  await spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`]);
-  await spawn('git', ['push', '-fq', 'origin', branch]);
+  const config = { cwd: TEMP_DIR };
+
+  await spawn('git', ['checkout', branch], config);
+  await spawn('git', ['status'], config);
+  await spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
+  await spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
+  await spawn('git', ['push', '-fq', 'origin', branch], config);
 
   core.info('New baseline images saved.');
 }
@@ -43,6 +46,8 @@ export async function checkScreenshots() {
   } else {
     core.info('No new baseline images detected. Done.');
   }
+
+  rimraf.sync(TEMP_DIR);
 }
 
 // const fs = require('fs-extra');

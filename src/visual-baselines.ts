@@ -1,12 +1,45 @@
 import { directoryHasChanges } from './directory-has-changes';
 import * as core from '@actions/core';
 import * as path from 'path';
+import * as fs from 'fs-extra';
+import { spawn } from './spawn';
+
+const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
+const TEMP_DIR = '.skypagesvisualbaselinetemp';
+
+async function handleBaselineScreenshots() {
+  const branch = 'master';
+  const gitUrl = process.env.VISUAL_BASELINES_REPO_URL;
+  const buildId = process.env.GITHUB_RUN_ID;
+
+  if (!gitUrl) {
+    core.setFailed('The environment variable `VISUAL_BASELINES_REPO_URL` is not set!');
+    return;
+  }
+
+  await spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
+  await spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
+  await spawn('git', ['clone', gitUrl, '--single-branch', TEMP_DIR]);
+
+  await fs.copy(
+    BASELINE_SCREENSHOT_DIR,
+    path.resolve(TEMP_DIR, BASELINE_SCREENSHOT_DIR)
+  );
+
+  await spawn('git', ['checkout', branch]);
+  await spawn('git', ['status']);
+  await spawn('git', ['add', BASELINE_SCREENSHOT_DIR]);
+  await spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`]);
+  await spawn('git', ['push', '-fq', 'origin', branch]);
+
+  core.info('New baseline images saved.');
+}
 
 export async function checkScreenshots() {
-  const baselineScreenshotsDir = 'screenshots-baseline';
-  const hasChanges = await directoryHasChanges(baselineScreenshotsDir);
+  const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
   if (hasChanges) {
     core.info('New baseline images detected.');
+    await handleBaselineScreenshots();
   } else {
     core.info('No new baseline images detected. Done.');
   }
@@ -23,7 +56,7 @@ export async function checkScreenshots() {
 //   getBuildId
 // } = require('./utils');
 
-// const baselineScreenshotsDir = 'screenshots-baseline';
+// const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
 // const tempDir = '.skypagesvisualbaselinetemp';
 
 // function handleBaselineScreenshots() {
@@ -33,21 +66,21 @@ export async function checkScreenshots() {
 //   const buildId = getBuildId();
 
 //   return Promise.resolve()
-//     .then(() => exec('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']))
-//     .then(() => exec('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']))
-//     .then(() => exec('git', ['clone', gitUrl, '--single-branch', tempDir]))
-//     .then(() => fs.copy(
-//       baselineScreenshotsDir,
-//       path.resolve(tempDir, baselineScreenshotsDir)
+//     await spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']))
+//     await spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']))
+//     await spawn('git', ['clone', gitUrl, '--single-branch', tempDir]))
+//     await fs.copy(
+//       BASELINE_SCREENSHOT_DIR,
+//       path.resolve(tempDir, BASELINE_SCREENSHOT_DIR)
 //     ))
-//     .then(() => exec('git', ['checkout', branch], opts))
-//     .then(() => exec('git', ['status'], opts))
-//     .then(() => exec('git', ['add', baselineScreenshotsDir], opts))
-//     .then(() => exec('git', [
+//     await spawn('git', ['checkout', branch], opts))
+//     await spawn('git', ['status'], opts))
+//     await spawn('git', ['add', BASELINE_SCREENSHOT_DIR], opts))
+//     await spawn('git', [
 //       'commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`
 //     ], opts))
-//     .then(() => exec('git', ['push', '-fq', 'origin', branch], opts))
-//     .then(() => {
+//     await spawn('git', ['push', '-fq', 'origin', branch], opts))
+//     await {
 //       logger.info('New baseline images saved.');
 //     });
 // }
@@ -62,7 +95,7 @@ export async function checkScreenshots() {
 //   logger.info('Checking new visual baseline images...');
 
 //   return Promise.resolve()
-//     .then(() => dirHasChanges(baselineScreenshotsDir))
+//     await dirHasChanges(BASELINE_SCREENSHOT_DIR))
 //     .then((hasChanges) => {
 //       if (hasChanges) {
 //         logger.info('New baseline images detected.');
@@ -74,7 +107,7 @@ export async function checkScreenshots() {
 // }
 
 // // checkScreenshots()
-// //   .then(() => {
+// //   await {
 // //     rimraf.sync(tempDir);
 // //     process.exit(0);
 // //   })

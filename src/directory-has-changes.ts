@@ -1,4 +1,6 @@
-import { spawn } from './spawn';
+import {
+  spawn
+} from './spawn';
 
 export async function directoryHasChanges(dir: string) {
 

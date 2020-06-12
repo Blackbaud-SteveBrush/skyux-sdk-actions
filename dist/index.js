@@ -1441,9 +1441,9 @@ function run() {
         try {
             yield install();
             yield installCerts();
+            yield visual();
             // await build();
             // await coverage();
-            yield visual();
             // await buildLibrary();
             // await publishLibrary();
         }

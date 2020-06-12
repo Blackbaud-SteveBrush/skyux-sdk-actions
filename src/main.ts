@@ -62,9 +62,9 @@ async function run(): Promise<void> {
   try {
     await install();
     await installCerts();
+    await visual();
     // await build();
     // await coverage();
-    await visual();
     // await buildLibrary();
     // await publishLibrary();
   } catch (error) {

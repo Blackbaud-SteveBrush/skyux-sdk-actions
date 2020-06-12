@@ -3714,33 +3714,53 @@ const spawn_1 = __webpack_require__(820);
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
 const FAILURE_SCREENSHOT_DIR = 'screenshots-diff';
 const TEMP_DIR = '.skypagesvisualbaselinetemp';
-function commitBaselineScreenshots() {
+function cloneRepoAsAdmin(gitUrl, branch) {
     return __awaiter(this, void 0, void 0, function* () {
-        const branch = process.env.VISUAL_BASELINES_REPO_BRANCH || 'master';
-        const gitUrl = process.env.VISUAL_BASELINES_REPO_URL;
-        const buildId = process.env.GITHUB_RUN_ID;
-        if (!gitUrl) {
-            core.setFailed('The environment variable `VISUAL_BASELINES_REPO_URL` is not set!');
-            return;
-        }
-        // Clone a fresh copy of the baselines repo.
         yield spawn_1.spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
         yield spawn_1.spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
         yield spawn_1.spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', TEMP_DIR]);
-        yield fs.copy(path.resolve(core.getInput('working-directory'), BASELINE_SCREENSHOT_DIR), path.resolve(core.getInput('working-directory'), TEMP_DIR, BASELINE_SCREENSHOT_DIR));
+    });
+}
+function commitScreenshots(changesDirectory, branch) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const workingDirectory = core.getInput('working-directory');
+        const buildId = process.env.GITHUB_RUN_ID;
         const config = {
-            cwd: path.resolve(core.getInput('working-directory'), TEMP_DIR)
+            cwd: path.resolve(workingDirectory, TEMP_DIR)
         };
         // Commit the screenshots to the baselines repo.
-        yield spawn_1.spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
-        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
+        yield spawn_1.spawn('git', ['add', changesDirectory], config);
+        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
         yield spawn_1.spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
-        core.info('New baseline images saved.');
+        core.info('New images saved.');
+    });
+}
+function commitBaselineScreenshots() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const branch = process.env.VISUAL_BASELINES_REPO_BRANCH || 'master';
+        const repoUrl = process.env.VISUAL_BASELINES_REPO_URL;
+        const workingDirectory = core.getInput('working-directory');
+        if (!repoUrl) {
+            core.setFailed('The environment variable `VISUAL_BASELINES_REPO_URL` is not set!');
+            return;
+        }
+        yield cloneRepoAsAdmin(repoUrl, branch);
+        yield fs.copy(path.resolve(workingDirectory, BASELINE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, BASELINE_SCREENSHOT_DIR));
+        yield commitScreenshots(BASELINE_SCREENSHOT_DIR, branch);
     });
 }
 function commitFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
-        return Promise.resolve();
+        const branch = process.env.VISUAL_FAILURES_REPO_BRANCH || 'master';
+        const repoUrl = process.env.VISUAL_FAILURES_REPO_URL;
+        const workingDirectory = core.getInput('working-directory');
+        if (!repoUrl) {
+            core.setFailed('The environment variable `VISUAL_FAILURES_REPO_URL` is not set!');
+            return;
+        }
+        yield cloneRepoAsAdmin(repoUrl, branch);
+        yield fs.copy(path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR));
+        yield commitScreenshots(FAILURE_SCREENSHOT_DIR, branch);
     });
 }
 function checkNewBaselineScreenshots() {

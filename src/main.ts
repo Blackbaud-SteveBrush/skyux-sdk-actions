@@ -1,7 +1,13 @@
 import * as core from '@actions/core';
 
-import { spawn } from './spawn';
-import { checkScreenshots } from './visual-baselines';
+import {
+  spawn
+} from './spawn';
+
+import {
+  checkNewBaselineScreenshots,
+  checkNewFailureScreenshots
+} from './screenshot-comparator';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
   return spawn('npx', [
@@ -31,9 +37,13 @@ async function coverage() {
 }
 
 async function visual() {
-  await runSkyUxCommand('e2e');
-  // await checkScreenshots();
-  // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
+  try {
+    await runSkyUxCommand('e2e');
+    await checkNewBaselineScreenshots();
+  } catch (err) {
+    await checkNewFailureScreenshots();
+    throw err;
+  }
 }
 
 async function buildLibrary() {
@@ -52,10 +62,10 @@ async function run(): Promise<void> {
   try {
     await install();
     await installCerts();
-    await build();
-    await coverage();
+    // await build();
+    // await coverage();
     await visual();
-    await buildLibrary();
+    // await buildLibrary();
     // await publishLibrary();
   } catch (error) {
     core.setFailed(error);

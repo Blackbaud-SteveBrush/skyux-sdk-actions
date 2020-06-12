@@ -41,13 +41,29 @@ async function commitBaselineScreenshots() {
   core.info('New baseline images saved.');
 }
 
-export async function checkScreenshots() {
+async function commitFailureScreenshots() {
+  return Promise.resolve();
+}
+
+export async function checkNewBaselineScreenshots() {
   const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
   if (hasChanges) {
     core.info('New baseline images detected.');
     await commitBaselineScreenshots();
   } else {
     core.info('No new baseline images detected. Done.');
+  }
+
+  rimraf.sync(TEMP_DIR);
+}
+
+export async function checkNewFailureScreenshots() {
+  const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
+  if (hasChanges) {
+    core.info('New failure images detected.');
+    await commitFailureScreenshots();
+  } else {
+    core.info('No new failure images detected. Done.');
   }
 
   rimraf.sync(TEMP_DIR);

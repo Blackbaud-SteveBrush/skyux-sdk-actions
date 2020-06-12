@@ -9,7 +9,7 @@ const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
 const TEMP_DIR = '.skypagesvisualbaselinetemp';
 
 async function commitBaselineScreenshots() {
-  const branch = 'master';
+  const branch = process.env.VISUAL_BASELINES_REPO_BRANCH || 'master';
   const gitUrl = process.env.VISUAL_BASELINES_REPO_URL;
   const buildId = process.env.GITHUB_RUN_ID;
 

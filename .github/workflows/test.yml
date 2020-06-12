@@ -33,3 +33,6 @@ jobs:
       env:
           BROWSER_STACK_ACCESS_KEY: ${{ secrets.BROWSER_STACK_ACCESS_KEY }}
           BROWSER_STACK_USERNAME: ${{ secrets.BROWSER_STACK_USERNAME }}
+          BROWSER_STACK_PROJECT: test-github-actions
+          VISUAL_BASELINES_REPO_URL: ${{ secrets.VISUAL_BASELINES_REPO_URL }}
+          VISUAL_BASELINES_REPO_BRANCH: 4.x.x-test-github-actions

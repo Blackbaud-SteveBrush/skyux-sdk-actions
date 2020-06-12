@@ -8144,11 +8144,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const directory_has_changes_1 = __webpack_require__(229);
 const core = __importStar(__webpack_require__(470));
-const path = __importStar(__webpack_require__(622));
 const fs = __importStar(__webpack_require__(226));
+const path = __importStar(__webpack_require__(622));
 const rimraf = __importStar(__webpack_require__(569));
+const directory_has_changes_1 = __webpack_require__(229);
 const spawn_1 = __webpack_require__(820);
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
 const TEMP_DIR = '.skypagesvisualbaselinetemp';
@@ -8161,21 +8161,18 @@ function commitBaselineScreenshots() {
             core.setFailed('The environment variable `VISUAL_BASELINES_REPO_URL` is not set!');
             return;
         }
+        // Clone a fresh copy of the baselines repo.
         yield spawn_1.spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
         yield spawn_1.spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
         yield spawn_1.spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', TEMP_DIR]);
-        console.log('Done cloning visual baselines repo.');
         yield fs.copy(path.resolve(core.getInput('working-directory'), BASELINE_SCREENSHOT_DIR), path.resolve(core.getInput('working-directory'), TEMP_DIR, BASELINE_SCREENSHOT_DIR));
-        console.log('Done copying baselines folder.');
         const config = {
             cwd: path.resolve(core.getInput('working-directory'), TEMP_DIR)
         };
-        // await spawn('git', ['checkout', branch], config);
-        yield spawn_1.spawn('git', ['status'], config);
+        // Commit the screenshots to the baselines repo.
         yield spawn_1.spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
-        yield spawn_1.spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
-        yield spawn_1.spawn('git', ['status'], config);
-        yield spawn_1.spawn('git', ['push', '-fq', 'origin', branch], config);
+        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
+        yield spawn_1.spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
         core.info('New baseline images saved.');
     });
 }

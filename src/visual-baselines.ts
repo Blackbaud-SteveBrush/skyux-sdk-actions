@@ -1,8 +1,9 @@
-import { directoryHasChanges } from './directory-has-changes';
 import * as core from '@actions/core';
-import * as path from 'path';
 import * as fs from 'fs-extra';
+import * as path from 'path';
 import * as rimraf from 'rimraf';
+
+import { directoryHasChanges } from './directory-has-changes';
 import { spawn } from './spawn';
 
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
@@ -18,29 +19,24 @@ async function commitBaselineScreenshots() {
     return;
   }
 
+  // Clone a fresh copy of the baselines repo.
   await spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
   await spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
   await spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', TEMP_DIR]);
-
-  console.log('Done cloning visual baselines repo.');
 
   await fs.copy(
     path.resolve(core.getInput('working-directory'), BASELINE_SCREENSHOT_DIR),
     path.resolve(core.getInput('working-directory'), TEMP_DIR, BASELINE_SCREENSHOT_DIR)
   );
 
-  console.log('Done copying baselines folder.');
-
   const config = {
     cwd: path.resolve(core.getInput('working-directory'), TEMP_DIR)
   };
 
-  // await spawn('git', ['checkout', branch], config);
-  await spawn('git', ['status'], config);
+  // Commit the screenshots to the baselines repo.
   await spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
-  await spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
-  await spawn('git', ['status'], config);
-  await spawn('git', ['push', '-fq', 'origin', branch], config);
+  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
+  await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
 
   core.info('New baseline images saved.');
 }

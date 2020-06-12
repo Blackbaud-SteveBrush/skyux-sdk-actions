@@ -20,7 +20,7 @@ async function commitBaselineScreenshots() {
 
   await spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
   await spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
-  await spawn('git', ['clone', gitUrl, '--single-branch', TEMP_DIR]);
+  await spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', TEMP_DIR]);
 
   console.log('Done cloning visual baselines repo.');
 

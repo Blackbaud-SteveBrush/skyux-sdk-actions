@@ -8163,7 +8163,7 @@ function commitBaselineScreenshots() {
         }
         yield spawn_1.spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
         yield spawn_1.spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
-        yield spawn_1.spawn('git', ['clone', gitUrl, '--single-branch', TEMP_DIR]);
+        yield spawn_1.spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', TEMP_DIR]);
         console.log('Done cloning visual baselines repo.');
         yield fs.copy(path.resolve(core.getInput('working-directory'), BASELINE_SCREENSHOT_DIR), path.resolve(core.getInput('working-directory'), TEMP_DIR, BASELINE_SCREENSHOT_DIR));
         console.log('Done copying baselines folder.');

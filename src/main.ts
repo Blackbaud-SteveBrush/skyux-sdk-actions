@@ -42,6 +42,7 @@ async function visual() {
     await checkNewBaselineScreenshots();
   } catch (err) {
     await checkNewFailureScreenshots();
+    console.log('ERRORORORROROROR?', err);
     throw err;
   }
 }

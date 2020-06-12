@@ -1420,6 +1420,7 @@ function visual() {
         }
         catch (err) {
             yield screenshot_comparator_1.checkNewFailureScreenshots();
+            console.log('ERRORORORROROROR?', err);
             throw err;
         }
     });
@@ -3712,6 +3713,7 @@ const rimraf = __importStar(__webpack_require__(569));
 const directory_has_changes_1 = __webpack_require__(229);
 const spawn_1 = __webpack_require__(820);
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
+const FAILURE_SCREENSHOT_DIR = 'screenshots-diff';
 const TEMP_DIR = '.skypagesvisualbaselinetemp';
 function commitBaselineScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -3746,11 +3748,11 @@ function checkNewBaselineScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(BASELINE_SCREENSHOT_DIR);
         if (hasChanges) {
-            core.info('New baseline images detected.');
+            core.info('New screenshots detected.');
             yield commitBaselineScreenshots();
         }
         else {
-            core.info('No new baseline images detected. Done.');
+            core.info('No new screenshots detected. Done.');
         }
         rimraf.sync(TEMP_DIR);
     });
@@ -3758,13 +3760,13 @@ function checkNewBaselineScreenshots() {
 exports.checkNewBaselineScreenshots = checkNewBaselineScreenshots;
 function checkNewFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
-        const hasChanges = yield directory_has_changes_1.directoryHasChanges(BASELINE_SCREENSHOT_DIR);
+        const hasChanges = yield directory_has_changes_1.directoryHasChanges(FAILURE_SCREENSHOT_DIR);
         if (hasChanges) {
-            core.info('New failure images detected.');
+            core.info('New screenshots detected.');
             yield commitFailureScreenshots();
         }
         else {
-            core.info('No new failure images detected. Done.');
+            core.info('No new screenshots detected. Done.');
         }
         rimraf.sync(TEMP_DIR);
     });

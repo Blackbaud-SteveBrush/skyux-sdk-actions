@@ -7,6 +7,7 @@ import { directoryHasChanges } from './directory-has-changes';
 import { spawn } from './spawn';
 
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
+const FAILURE_SCREENSHOT_DIR = 'screenshots-diff';
 const TEMP_DIR = '.skypagesvisualbaselinetemp';
 
 async function commitBaselineScreenshots() {
@@ -48,22 +49,22 @@ async function commitFailureScreenshots() {
 export async function checkNewBaselineScreenshots() {
   const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
   if (hasChanges) {
-    core.info('New baseline images detected.');
+    core.info('New screenshots detected.');
     await commitBaselineScreenshots();
   } else {
-    core.info('No new baseline images detected. Done.');
+    core.info('No new screenshots detected. Done.');
   }
 
   rimraf.sync(TEMP_DIR);
 }
 
 export async function checkNewFailureScreenshots() {
-  const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
+  const hasChanges = await directoryHasChanges(FAILURE_SCREENSHOT_DIR);
   if (hasChanges) {
-    core.info('New failure images detected.');
+    core.info('New screenshots detected.');
     await commitFailureScreenshots();
   } else {
-    core.info('No new failure images detected. Done.');
+    core.info('No new screenshots detected. Done.');
   }
 
   rimraf.sync(TEMP_DIR);

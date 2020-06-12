@@ -3,8 +3,13 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 
-import { directoryHasChanges } from './directory-has-changes';
-import { spawn } from './spawn';
+import {
+  directoryHasChanges
+} from './directory-has-changes';
+
+import {
+  spawn
+} from './spawn';
 
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
 const FAILURE_SCREENSHOT_DIR = 'screenshots-diff';

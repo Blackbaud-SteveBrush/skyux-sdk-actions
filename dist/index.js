@@ -8164,7 +8164,9 @@ function commitBaselineScreenshots() {
         yield spawn_1.spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
         yield spawn_1.spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
         yield spawn_1.spawn('git', ['clone', gitUrl, '--single-branch', TEMP_DIR]);
+        console.log('Done cloning visual baselines repo.');
         yield fs.copy(path.resolve(core.getInput('working-directory'), BASELINE_SCREENSHOT_DIR), path.resolve(core.getInput('working-directory'), TEMP_DIR, BASELINE_SCREENSHOT_DIR));
+        console.log('Done copying baselines folder.');
         const config = {
             cwd: path.resolve(core.getInput('working-directory'), TEMP_DIR)
         };
@@ -8172,6 +8174,7 @@ function commitBaselineScreenshots() {
         yield spawn_1.spawn('git', ['status'], config);
         yield spawn_1.spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
         yield spawn_1.spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
+        yield spawn_1.spawn('git', ['status'], config);
         yield spawn_1.spawn('git', ['push', '-fq', 'origin', branch], config);
         core.info('New baseline images saved.');
     });

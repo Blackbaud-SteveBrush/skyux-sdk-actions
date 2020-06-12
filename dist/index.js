@@ -1442,9 +1442,9 @@ function run() {
             yield install();
             yield installCerts();
             yield visual();
-            // await build();
-            // await coverage();
-            // await buildLibrary();
+            yield build();
+            yield coverage();
+            yield buildLibrary();
             // await publishLibrary();
         }
         catch (error) {
@@ -3728,13 +3728,11 @@ function commitScreenshots(changesDirectory, branch) {
         const config = {
             cwd: path.resolve(workingDirectory, TEMP_DIR)
         };
-        // Commit the screenshots to the baselines repo.
         try {
             yield spawn_1.spawn('git', ['checkout', branch]);
         }
         catch (err) {
-            console.log('EERERIOEREORERIEOREIROE:', err);
-            yield spawn_1.spawn('git', ['checkout', '--branch', branch]);
+            yield spawn_1.spawn('git', ['checkout', '-b', branch]);
         }
         yield spawn_1.spawn('git', ['add', changesDirectory], config);
         yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);

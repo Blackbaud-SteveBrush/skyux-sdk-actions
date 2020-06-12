@@ -29,12 +29,10 @@ async function commitScreenshots(changesDirectory: string, branch: string) {
     cwd: path.resolve(workingDirectory, TEMP_DIR)
   };
 
-  // Commit the screenshots to the baselines repo.
   try {
     await spawn('git', ['checkout', branch]);
   } catch (err) {
-    console.log('EERERIOEREORERIEOREIROE:', err);
-    await spawn('git', ['checkout', '--branch', branch]);
+    await spawn('git', ['checkout', '-b', branch]);
   }
 
   await spawn('git', ['add', changesDirectory], config);

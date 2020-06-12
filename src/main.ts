@@ -63,9 +63,9 @@ async function run(): Promise<void> {
     await install();
     await installCerts();
     await visual();
-    // await build();
-    // await coverage();
-    // await buildLibrary();
+    await build();
+    await coverage();
+    await buildLibrary();
     // await publishLibrary();
   } catch (error) {
     core.setFailed(error);

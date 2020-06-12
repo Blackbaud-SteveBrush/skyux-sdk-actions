@@ -32,9 +32,7 @@ async function coverage() {
 
 async function visual() {
   await runSkyUxCommand('e2e');
-  await checkScreenshots();
-
-  // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-baselines.js'));
+  // await checkScreenshots();
   // spawn('node', path.resolve(process.cwd(), './node_modules/@skyux-sdk/builder-config/scripts/visual-failures.js'));
 }
 

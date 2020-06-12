@@ -8164,8 +8164,10 @@ function commitBaselineScreenshots() {
         yield spawn_1.spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
         yield spawn_1.spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
         yield spawn_1.spawn('git', ['clone', gitUrl, '--single-branch', TEMP_DIR]);
-        yield fs.copy(BASELINE_SCREENSHOT_DIR, path.resolve(TEMP_DIR, BASELINE_SCREENSHOT_DIR));
-        const config = { cwd: TEMP_DIR };
+        yield fs.copy(path.resolve(core.getInput('working-directory'), BASELINE_SCREENSHOT_DIR), path.resolve(core.getInput('working-directory'), TEMP_DIR, BASELINE_SCREENSHOT_DIR));
+        const config = {
+            cwd: path.resolve(core.getInput('working-directory'), TEMP_DIR)
+        };
         yield spawn_1.spawn('git', ['checkout', branch], config);
         yield spawn_1.spawn('git', ['status'], config);
         yield spawn_1.spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);

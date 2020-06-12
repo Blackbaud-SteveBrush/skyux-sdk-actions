@@ -23,11 +23,13 @@ async function commitBaselineScreenshots() {
   await spawn('git', ['clone', gitUrl, '--single-branch', TEMP_DIR]);
 
   await fs.copy(
-    BASELINE_SCREENSHOT_DIR,
-    path.resolve(TEMP_DIR, BASELINE_SCREENSHOT_DIR)
+    path.resolve(core.getInput('working-directory'), BASELINE_SCREENSHOT_DIR),
+    path.resolve(core.getInput('working-directory'), TEMP_DIR, BASELINE_SCREENSHOT_DIR)
   );
 
-  const config = { cwd: TEMP_DIR };
+  const config = {
+    cwd: path.resolve(core.getInput('working-directory'), TEMP_DIR)
+  };
 
   await spawn('git', ['checkout', branch], config);
   await spawn('git', ['status'], config);

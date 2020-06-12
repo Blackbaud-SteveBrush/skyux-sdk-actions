@@ -3729,6 +3729,13 @@ function commitScreenshots(changesDirectory, branch) {
             cwd: path.resolve(workingDirectory, TEMP_DIR)
         };
         // Commit the screenshots to the baselines repo.
+        try {
+            yield spawn_1.spawn('git', ['checkout', branch]);
+        }
+        catch (err) {
+            console.log('EERERIOEREORERIEOREIROE:', err);
+            yield spawn_1.spawn('git', ['checkout', '--branch', branch]);
+        }
         yield spawn_1.spawn('git', ['add', changesDirectory], config);
         yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
         yield spawn_1.spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
@@ -3751,14 +3758,14 @@ function commitBaselineScreenshots() {
 }
 function commitFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
-        const branch = process.env.VISUAL_FAILURES_REPO_BRANCH || process.env.GITHUB_RUN_ID || 'master';
+        const branch = process.env.GITHUB_RUN_ID || 'master';
         const repoUrl = process.env.VISUAL_FAILURES_REPO_URL;
         const workingDirectory = core.getInput('working-directory');
         if (!repoUrl) {
             core.setFailed('The environment variable `VISUAL_FAILURES_REPO_URL` is not set!');
             return;
         }
-        yield cloneRepoAsAdmin(repoUrl, branch);
+        yield cloneRepoAsAdmin(repoUrl, 'master');
         yield fs.copy(path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR));
         yield commitScreenshots(FAILURE_SCREENSHOT_DIR, branch);
         const url = repoUrl.split('@')[1].replace('.git', '');

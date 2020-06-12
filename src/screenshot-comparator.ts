@@ -30,6 +30,13 @@ async function commitScreenshots(changesDirectory: string, branch: string) {
   };
 
   // Commit the screenshots to the baselines repo.
+  try {
+    await spawn('git', ['checkout', branch]);
+  } catch (err) {
+    console.log('EERERIOEREORERIEOREIROE:', err);
+    await spawn('git', ['checkout', '--branch', branch]);
+  }
+
   await spawn('git', ['add', changesDirectory], config);
   await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
   await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
@@ -59,7 +66,7 @@ async function commitBaselineScreenshots() {
 }
 
 async function commitFailureScreenshots() {
-  const branch = process.env.VISUAL_FAILURES_REPO_BRANCH || process.env.GITHUB_RUN_ID || 'master';
+  const branch = process.env.GITHUB_RUN_ID || 'master';
   const repoUrl = process.env.VISUAL_FAILURES_REPO_URL;
 
   const workingDirectory = core.getInput('working-directory');
@@ -69,7 +76,7 @@ async function commitFailureScreenshots() {
     return;
   }
 
-  await cloneRepoAsAdmin(repoUrl, branch);
+  await cloneRepoAsAdmin(repoUrl, 'master');
 
   await fs.copy(
     path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR),

@@ -35,7 +35,7 @@ async function commitBaselineScreenshots() {
     cwd: path.resolve(core.getInput('working-directory'), TEMP_DIR)
   };
 
-  await spawn('git', ['checkout', branch], config);
+  // await spawn('git', ['checkout', branch], config);
   await spawn('git', ['status'], config);
   await spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
   await spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);

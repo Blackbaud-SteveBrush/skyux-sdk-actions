@@ -8170,7 +8170,7 @@ function commitBaselineScreenshots() {
         const config = {
             cwd: path.resolve(core.getInput('working-directory'), TEMP_DIR)
         };
-        yield spawn_1.spawn('git', ['checkout', branch], config);
+        // await spawn('git', ['checkout', branch], config);
         yield spawn_1.spawn('git', ['status'], config);
         yield spawn_1.spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
         yield spawn_1.spawn('git', ['commit', '-m', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);

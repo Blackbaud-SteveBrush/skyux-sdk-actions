@@ -1380,8 +1380,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-const visual_baselines_1 = __webpack_require__(972);
 const spawn_1 = __webpack_require__(820);
+const visual_baselines_1 = __webpack_require__(972);
 function runSkyUxCommand(command, args) {
     return spawn_1.spawn('npx', [
         '-p', '@skyux-sdk/cli@next',
@@ -1437,10 +1437,10 @@ function run() {
         try {
             yield install();
             yield installCerts();
-            // await build();
-            // await coverage();
+            yield build();
+            yield coverage();
             yield visual();
-            // await buildLibrary();
+            yield buildLibrary();
             // await publishLibrary();
         }
         catch (error) {

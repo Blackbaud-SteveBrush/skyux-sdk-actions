@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
-import { checkScreenshots } from './visual-baselines';
+
 import { spawn } from './spawn';
+import { checkScreenshots } from './visual-baselines';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
   return spawn('npx', [
@@ -53,10 +54,10 @@ async function run(): Promise<void> {
   try {
     await install();
     await installCerts();
-    // await build();
-    // await coverage();
+    await build();
+    await coverage();
     await visual();
-    // await buildLibrary();
+    await buildLibrary();
     // await publishLibrary();
   } catch (error) {
     core.setFailed(error);

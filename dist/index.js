@@ -7408,7 +7408,7 @@ function spawn(command, args = [], spawnOptions) {
             let errorMessage = '';
             if (childProcess.stderr) {
                 childProcess.stderr.on('data', (data) => {
-                    errorMessage = data.toString('utf8');
+                    errorMessage += data.toString('utf8');
                 });
             }
             childProcess.on('error', (err) => reject(err));

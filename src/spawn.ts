@@ -30,7 +30,7 @@ export async function spawn(command: string, args: string[] = [], spawnOptions?:
     let errorMessage: string = '';
     if (childProcess.stderr) {
       childProcess.stderr.on('data', (data) => {
-        errorMessage = data.toString('utf8');
+        errorMessage += data.toString('utf8');
       });
     }
 

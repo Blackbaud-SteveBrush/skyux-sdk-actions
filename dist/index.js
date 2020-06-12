@@ -3761,6 +3761,8 @@ function commitFailureScreenshots() {
         yield cloneRepoAsAdmin(repoUrl, branch);
         yield fs.copy(path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR));
         yield commitScreenshots(FAILURE_SCREENSHOT_DIR, branch);
+        const url = repoUrl.split('@')[1].replace('.git', '');
+        core.setFailed(`SKY UX visual test failure!\nScreenshots may be viewed at: https://${url}/tree/${branch}`);
     });
 }
 function checkNewBaselineScreenshots() {

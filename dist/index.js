@@ -1420,8 +1420,7 @@ function visual() {
         }
         catch (err) {
             yield screenshot_comparator_1.checkNewFailureScreenshots();
-            console.log('ERRORORORROROROR?', err);
-            throw err;
+            core.setFailed('End-to-end tests failed.');
         }
     });
 }

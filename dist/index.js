@@ -3751,7 +3751,7 @@ function commitBaselineScreenshots() {
 }
 function commitFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
-        const branch = process.env.VISUAL_FAILURES_REPO_BRANCH || 'master';
+        const branch = process.env.VISUAL_FAILURES_REPO_BRANCH || process.env.GITHUB_RUN_ID || 'master';
         const repoUrl = process.env.VISUAL_FAILURES_REPO_URL;
         const workingDirectory = core.getInput('working-directory');
         if (!repoUrl) {

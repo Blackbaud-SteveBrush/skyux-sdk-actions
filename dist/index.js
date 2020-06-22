@@ -3789,7 +3789,7 @@ function commitFailureScreenshots() {
         const config = {
             cwd: path.resolve(workingDirectory, TEMP_DIR)
         };
-        yield spawn_1.spawn('git', ['config', '--get', 'remote.origin.url'], config);
+        core.info('Exists? ' + fs.existsSync(path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR)));
         yield spawn_1.spawn('git', ['checkout', '-b', branch], config);
         yield spawn_1.spawn('git', ['status'], config);
         yield spawn_1.spawn('git', ['add', FAILURE_SCREENSHOT_DIR], config);

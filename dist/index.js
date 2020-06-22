@@ -3782,7 +3782,7 @@ function commitFailureScreenshots() {
             core.setFailed('The environment variable `VISUAL_FAILURES_REPO_URL` is not set!');
             return;
         }
-        yield cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
+        yield cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);
         core.info(`Preparing to commit failure screenshots to the '${branch}' branch.`);
         const config = {
             cwd: path.resolve(workingDirectory, TEMP_DIR)

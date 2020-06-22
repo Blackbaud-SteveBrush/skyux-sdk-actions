@@ -98,7 +98,7 @@ async function commitFailureScreenshots() {
     return;
   }
 
-  await cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
+  await cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);
 
   core.info(`Preparing to commit failure screenshots to the '${branch}' branch.`);
 

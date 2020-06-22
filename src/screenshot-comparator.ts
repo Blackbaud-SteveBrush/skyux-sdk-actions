@@ -21,35 +21,30 @@ async function cloneRepoAsAdmin(gitUrl: string, branch: string, directory: strin
   await spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', directory]);
 }
 
-async function commitScreenshots(changesDirectory: string, branch: string) {
-  core.info(`Preparing to commit screenshots to the '${branch}' branch.`);
+async function commitScreenshots(checkoutBranch: string, commitBranch: string, changesDir: string) {
+  const buildId = process.env.GITHUB_RUN_ID;
 
   const workingDirectory = core.getInput('working-directory');
-  const buildId = process.env.GITHUB_RUN_ID;
 
   const config = {
     cwd: path.resolve(workingDirectory, TEMP_DIR)
   };
 
   try {
-    await spawn('git', ['checkout', branch], config);
+    await spawn('git', ['checkout', checkoutBranch], config);
   } catch (err) {
-    await spawn('git', ['checkout', '-b', branch], config);
+    await spawn('git', ['checkout', '-b', checkoutBranch], config);
   }
 
   await spawn('git', ['status'], config);
-
-  await spawn('git', ['add', changesDirectory], config);
+  await spawn('git', ['add', changesDir], config);
   await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
-  await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
-
-  core.info('New baseline images saved.');
+  await spawn('git', ['push', '--force', '--quiet', 'origin', commitBranch], config);
 }
 
 async function commitBaselineScreenshots() {
   const branch = process.env.VISUAL_BASELINES_REPO_BRANCH || 'master';
   const repoUrl = process.env.VISUAL_BASELINES_REPO_URL;
-  const buildId = process.env.GITHUB_RUN_ID;
 
   const workingDirectory = core.getInput('working-directory');
 
@@ -60,28 +55,15 @@ async function commitBaselineScreenshots() {
 
   await cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
 
-  core.info(`Preparing to commit baseline screenshots to the '${branch}' branch.`);
-
-  const config = {
-    cwd: path.resolve(workingDirectory, TEMP_DIR)
-  };
-
-  try {
-    await spawn('git', ['checkout', branch], config);
-  } catch (err) {
-    await spawn('git', ['checkout', '-b', branch], config);
-  }
-
   // Move new screenshots to fresh copy of the repo.
   await fs.copy(
     path.resolve(workingDirectory, BASELINE_SCREENSHOT_DIR),
     path.resolve(workingDirectory, TEMP_DIR, BASELINE_SCREENSHOT_DIR)
   );
 
-  await spawn('git', ['status'], config);
-  await spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
-  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
-  await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
+  core.info(`Preparing to commit new baseline screenshots to the '${branch}' branch.`);
+
+  await commitScreenshots(branch, branch, BASELINE_SCREENSHOT_DIR);
 
   core.info('New baseline images saved.');
 }
@@ -89,7 +71,6 @@ async function commitBaselineScreenshots() {
 async function commitFailureScreenshots() {
   const branch = process.env.GITHUB_RUN_ID || 'master';
   const repoUrl = process.env.VISUAL_FAILURES_REPO_URL;
-  const buildId = process.env.GITHUB_RUN_ID;
 
   const workingDirectory = core.getInput('working-directory');
 
@@ -108,20 +89,10 @@ async function commitFailureScreenshots() {
 
   core.info(`Preparing to commit failure screenshots to the '${branch}' branch.`);
 
-  const config = {
-    cwd: path.resolve(workingDirectory, TEMP_DIR)
-  };
-
-  core.info('Exists? ' + fs.existsSync(path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR)));
-
-  await spawn('git', ['checkout', '-b', branch], config);
-
-  await spawn('git', ['status'], config);
-  await spawn('git', ['add', FAILURE_SCREENSHOT_DIR], config);
-  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
-  await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
+  await commitScreenshots('master', branch, FAILURE_SCREENSHOT_DIR);
 
   const url = repoUrl.split('@')[1].replace('.git', '');
+
   core.setFailed(`SKY UX visual test failure!\nScreenshots may be viewed at: https://${url}/tree/${branch}`);
 }
 

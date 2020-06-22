@@ -22,6 +22,7 @@ async function cloneRepoAsAdmin(gitUrl: string, branch: string) {
 }
 
 async function commitScreenshots(changesDirectory: string, branch: string) {
+  core.info(`Preparing to commit screenshots to the '${branch}' branch.`);
   const workingDirectory = core.getInput('working-directory');
   const buildId = process.env.GITHUB_RUN_ID;
 

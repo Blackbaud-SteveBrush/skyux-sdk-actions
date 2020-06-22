@@ -3723,6 +3723,7 @@ function cloneRepoAsAdmin(gitUrl, branch) {
 }
 function commitScreenshots(changesDirectory, branch) {
     return __awaiter(this, void 0, void 0, function* () {
+        core.info(`Preparing to commit screenshots to the '${branch}' branch.`);
         const workingDirectory = core.getInput('working-directory');
         const buildId = process.env.GITHUB_RUN_ID;
         const config = {

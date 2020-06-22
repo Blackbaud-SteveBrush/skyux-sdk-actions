@@ -112,7 +112,7 @@ async function commitFailureScreenshots() {
     cwd: path.resolve(workingDirectory, TEMP_DIR)
   };
 
-  await spawn('git', ['remote', 'show', 'origin'], config);
+  await spawn('git', ['config', '--get', 'remote.origin.url'], config);
 
   await spawn('git', ['checkout', '-b', branch], config);
 

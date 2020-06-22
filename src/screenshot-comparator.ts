@@ -132,6 +132,7 @@ export async function checkNewFailureScreenshots() {
   const hasChanges = await directoryHasChanges(FAILURE_SCREENSHOT_DIR);
   if (hasChanges) {
     core.info('New screenshots detected.');
+    console.log('REF:', process.env.GITHUB_REF);
     await commitFailureScreenshots();
   } else {
     core.info('No new screenshots detected. Done.');

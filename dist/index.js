@@ -3810,6 +3810,7 @@ function checkNewFailureScreenshots() {
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(FAILURE_SCREENSHOT_DIR);
         if (hasChanges) {
             core.info('New screenshots detected.');
+            console.log('REF:', process.env.GITHUB_REF);
             yield commitFailureScreenshots();
         }
         else {

@@ -3783,13 +3783,14 @@ function commitFailureScreenshots() {
             return;
         }
         yield cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);
+        // Move new screenshots to fresh copy of the repo.
+        yield fs.copy(path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR));
         core.info(`Preparing to commit failure screenshots to the '${branch}' branch.`);
         const config = {
             cwd: path.resolve(workingDirectory, TEMP_DIR)
         };
+        yield spawn_1.spawn('git', ['remote', 'show', 'origin'], config);
         yield spawn_1.spawn('git', ['checkout', '-b', branch], config);
-        // Move new screenshots to fresh copy of the repo.
-        yield fs.copy(path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR));
         yield spawn_1.spawn('git', ['status'], config);
         yield spawn_1.spawn('git', ['add', FAILURE_SCREENSHOT_DIR], config);
         yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);

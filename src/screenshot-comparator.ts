@@ -100,19 +100,21 @@ async function commitFailureScreenshots() {
 
   await cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);
 
+  // Move new screenshots to fresh copy of the repo.
+  await fs.copy(
+    path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR),
+    path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR)
+  );
+
   core.info(`Preparing to commit failure screenshots to the '${branch}' branch.`);
 
   const config = {
     cwd: path.resolve(workingDirectory, TEMP_DIR)
   };
 
-  await spawn('git', ['checkout', '-b', branch], config);
+  await spawn('git', ['remote', 'show', 'origin'], config);
 
-  // Move new screenshots to fresh copy of the repo.
-  await fs.copy(
-    path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR),
-    path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR)
-  );
+  await spawn('git', ['checkout', '-b', branch], config);
 
   await spawn('git', ['status'], config);
   await spawn('git', ['add', FAILURE_SCREENSHOT_DIR], config);

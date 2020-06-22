@@ -1196,6 +1196,31 @@ module.exports = require("child_process");
 
 /***/ }),
 
+/***/ 133:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function isPullRequest() {
+    var _a;
+    return (((_a = process.env.GITHUB_REF) === null || _a === void 0 ? void 0 : _a.indexOf('refs/pull/')) === 0);
+}
+exports.isPullRequest = isPullRequest;
+function isTag() {
+    var _a;
+    return (((_a = process.env.GITHUB_REF) === null || _a === void 0 ? void 0 : _a.indexOf('refs/tags/')) === 0);
+}
+exports.isTag = isTag;
+function isBuild() {
+    var _a;
+    return (((_a = process.env.GITHUB_REF) === null || _a === void 0 ? void 0 : _a.indexOf('refs/heads/')) === 0);
+}
+exports.isBuild = isBuild;
+
+
+/***/ }),
+
 /***/ 149:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -3709,6 +3734,7 @@ const core = __importStar(__webpack_require__(470));
 const fs = __importStar(__webpack_require__(226));
 const path = __importStar(__webpack_require__(622));
 const rimraf = __importStar(__webpack_require__(569));
+const commit_type_1 = __webpack_require__(133);
 const directory_has_changes_1 = __webpack_require__(229);
 const spawn_1 = __webpack_require__(820);
 const BASELINE_SCREENSHOT_DIR = 'screenshots-baseline';
@@ -3807,10 +3833,12 @@ function checkNewBaselineScreenshots() {
 exports.checkNewBaselineScreenshots = checkNewBaselineScreenshots;
 function checkNewFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('isPullRequest?', commit_type_1.isPullRequest());
+        console.log('isBuild?', commit_type_1.isBuild());
+        console.log('isTag?', commit_type_1.isTag());
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(FAILURE_SCREENSHOT_DIR);
         if (hasChanges) {
             core.info('New screenshots detected.');
-            console.log('REF:', process.env.GITHUB_REF);
             yield commitFailureScreenshots();
         }
         else {

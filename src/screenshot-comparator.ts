@@ -4,6 +4,12 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 
 import {
+  isPullRequest,
+  isBuild,
+  isTag
+} from './commit-type';
+
+import {
   directoryHasChanges
 } from './directory-has-changes';
 
@@ -129,10 +135,12 @@ export async function checkNewBaselineScreenshots() {
 }
 
 export async function checkNewFailureScreenshots() {
+  console.log('isPullRequest?', isPullRequest());
+  console.log('isBuild?', isBuild());
+  console.log('isTag?', isTag());
   const hasChanges = await directoryHasChanges(FAILURE_SCREENSHOT_DIR);
   if (hasChanges) {
     core.info('New screenshots detected.');
-    console.log('REF:', process.env.GITHUB_REF);
     await commitFailureScreenshots();
   } else {
     core.info('No new screenshots detected. Done.');

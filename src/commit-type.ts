@@ -14,5 +14,6 @@ export function isBuild(): boolean {
 // See: https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
 export function isFork(): boolean {
   console.log('HEAD?', process.env.GITHUB_HEAD_REF);
+  console.log('EVENT:', process.env.GITHUB_EVENT_NAME);
   return (process.env.GITHUB_HEAD_REF !== undefined);
 }

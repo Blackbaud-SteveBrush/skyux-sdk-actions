@@ -1221,6 +1221,7 @@ exports.isBuild = isBuild;
 // See: https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
 function isFork() {
     console.log('HEAD?', process.env.GITHUB_HEAD_REF);
+    console.log('EVENT:', process.env.GITHUB_EVENT_NAME);
     return (process.env.GITHUB_HEAD_REF !== undefined);
 }
 exports.isFork = isFork;

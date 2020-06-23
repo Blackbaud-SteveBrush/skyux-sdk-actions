@@ -60,10 +60,10 @@ async function buildLibrary() {
 // }
 
 async function run(): Promise<void> {
-  if (isFork()) {
-    core.info('Builds not run during forked pull requests.');
-    process.exit();
-  }
+  // if (isFork()) {
+  //   core.info('Builds not run during forked pull requests.');
+  //   process.exit();
+  // }
 
   try {
     await install();

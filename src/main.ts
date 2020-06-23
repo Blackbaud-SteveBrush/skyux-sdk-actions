@@ -8,6 +8,7 @@ import {
   checkNewBaselineScreenshots,
   checkNewFailureScreenshots
 } from './screenshot-comparator';
+import { isTag, isFork } from './commit-type';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
   return spawn('npx', [
@@ -59,6 +60,11 @@ async function buildLibrary() {
 // }
 
 async function run(): Promise<void> {
+  if (isFork()) {
+    core.info('Builds not run during forked pull requests.');
+    process.exit();
+  }
+
   try {
     await install();
     await installCerts();
@@ -66,10 +72,13 @@ async function run(): Promise<void> {
     await build();
     await coverage();
     await buildLibrary();
-    // await publishLibrary();
+
+    if (isTag()) {
+      // await publishLibrary();
+    }
+
   } catch (error) {
     core.setFailed(error);
-    console.log('ERROR:', error);
     process.exit(1);
   }
 }

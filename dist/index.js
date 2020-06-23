@@ -1203,8 +1203,7 @@ module.exports = require("child_process");
 
 Object.defineProperty(exports, "__esModule", { value: true });
 function isPullRequest() {
-    var _a;
-    return (((_a = process.env.GITHUB_REF) === null || _a === void 0 ? void 0 : _a.indexOf('refs/pull/')) === 0);
+    return (process.env.GITHUB_EVENT_NAME === 'pull_request');
 }
 exports.isPullRequest = isPullRequest;
 function isTag() {
@@ -1415,6 +1414,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const spawn_1 = __webpack_require__(820);
 const screenshot_comparator_1 = __webpack_require__(453);
+const commit_type_1 = __webpack_require__(133);
 function runSkyUxCommand(command, args) {
     return spawn_1.spawn('npx', [
         '-p', '@skyux-sdk/cli@next',
@@ -1471,6 +1471,10 @@ function buildLibrary() {
 // }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        if (commit_type_1.isFork()) {
+            core.info('Builds not run during forked pull requests.');
+            process.exit();
+        }
         try {
             yield install();
             yield installCerts();
@@ -1478,11 +1482,12 @@ function run() {
             yield build();
             yield coverage();
             yield buildLibrary();
-            // await publishLibrary();
+            if (commit_type_1.isTag()) {
+                // await publishLibrary();
+            }
         }
         catch (error) {
             core.setFailed(error);
-            console.log('ERROR:', error);
             process.exit(1);
         }
     });
@@ -3806,6 +3811,9 @@ function commitFailureScreenshots() {
 }
 function checkNewBaselineScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
+        if (commit_type_1.isPullRequest()) {
+            return;
+        }
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(BASELINE_SCREENSHOT_DIR);
         if (hasChanges) {
             core.info('New screenshots detected.');
@@ -3824,6 +3832,9 @@ function checkNewFailureScreenshots() {
         console.log('isBuild?', commit_type_1.isBuild());
         console.log('isTag?', commit_type_1.isTag());
         console.log('isFork?', commit_type_1.isFork());
+        if (!commit_type_1.isPullRequest()) {
+            return;
+        }
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(FAILURE_SCREENSHOT_DIR);
         if (hasChanges) {
             core.info('New screenshots detected.');

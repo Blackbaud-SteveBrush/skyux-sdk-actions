@@ -16,7 +16,8 @@
   "author": "Blackbaud, Inc.",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "1.2.4"
+    "@actions/core": "1.2.4",
+    "@actions/github": "3.0.0"
   },
   "devDependencies": {
     "@types/cross-spawn": "6.0.2",

@@ -99,6 +99,10 @@ async function commitFailureScreenshots() {
 }
 
 export async function checkNewBaselineScreenshots() {
+  if (isPullRequest()) {
+    return;
+  }
+
   const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
   if (hasChanges) {
     core.info('New screenshots detected.');
@@ -115,6 +119,10 @@ export async function checkNewFailureScreenshots() {
   console.log('isBuild?', isBuild());
   console.log('isTag?', isTag());
   console.log('isFork?', isFork());
+
+  if (!isPullRequest()) {
+    return;
+  }
 
   const hasChanges = await directoryHasChanges(FAILURE_SCREENSHOT_DIR);
 

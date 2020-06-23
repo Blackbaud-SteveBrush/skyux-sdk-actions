@@ -29,11 +29,9 @@ jobs:
     - name: Run action
       uses: ./
       with:
+        browser-stack-access-key: ${{ secrets.BROWSER_STACK_ACCESS_KEY }}
+        browser-stack-username: ${{ secrets.BROWSER_STACK_USERNAME }}
+        visual-baselines-repo: ${{ secrets.VISUAL_BASELINES_REPO_URL }}
+        visual-baselines-branch: 4.x.x-test-github-actions
+        visual-failures-repo: ${{ secrets.VISUAL_FAILURES_REPO_URL }}
         working-directory: ./skyux-sdk-template-library
-      env:
-          BROWSER_STACK_ACCESS_KEY: ${{ secrets.BROWSER_STACK_ACCESS_KEY }}
-          BROWSER_STACK_USERNAME: ${{ secrets.BROWSER_STACK_USERNAME }}
-          BROWSER_STACK_PROJECT: ${{ env.GITHUB_REPOSITORY }}
-          VISUAL_BASELINES_REPO_URL: ${{ secrets.VISUAL_BASELINES_REPO_URL }}
-          VISUAL_BASELINES_REPO_BRANCH: 4.x.x-test-github-actions
-          VISUAL_FAILURES_REPO_URL: ${{ secrets.VISUAL_FAILURES_REPO_URL }}

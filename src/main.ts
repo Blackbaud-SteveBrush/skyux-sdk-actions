@@ -8,7 +8,10 @@ import {
   checkNewBaselineScreenshots,
   checkNewFailureScreenshots
 } from './screenshot-comparator';
-import { isTag, isFork } from './commit-type';
+
+import {
+  isTag
+} from './commit-type';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
   return spawn('npx', [
@@ -64,6 +67,11 @@ async function run(): Promise<void> {
   //   core.info('Builds not run during forked pull requests.');
   //   process.exit();
   // }
+
+  // Set environment variables so that BrowserStack launcher can read them.
+  process.env.BROWSER_STACK_ACCESS_KEY = core.getInput('browser-stack-access-key');
+  process.env.BROWSER_STACK_USERNAME = core.getInput('browser-stack-username');
+  process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
 
   try {
     await install();

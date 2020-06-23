@@ -2277,6 +2277,10 @@ function run() {
         //   core.info('Builds not run during forked pull requests.');
         //   process.exit();
         // }
+        // Set environment variables so that BrowserStack launcher can read them.
+        process.env.BROWSER_STACK_ACCESS_KEY = core.getInput('browser-stack-access-key');
+        process.env.BROWSER_STACK_USERNAME = core.getInput('browser-stack-username');
+        process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
         try {
             yield install();
             yield installCerts();
@@ -5743,12 +5747,12 @@ function cloneRepoAsAdmin(gitUrl, branch, directory) {
 }
 function commitBaselineScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
-        const branch = process.env.VISUAL_BASELINES_REPO_BRANCH || 'master';
-        const repoUrl = process.env.VISUAL_BASELINES_REPO_URL;
-        const buildId = process.env.GITHUB_RUN_ID;
+        const branch = core.getInput('visual-baselines-branch') || 'master';
+        const repoUrl = core.getInput('visual-baselines-repo');
         const workingDirectory = core.getInput('working-directory');
+        const buildId = process.env.GITHUB_RUN_ID;
         if (!repoUrl) {
-            core.setFailed('The environment variable `VISUAL_BASELINES_REPO_URL` is not set!');
+            core.setFailed('Please set `visual-baselines-repo` to a valid git URL.');
             return;
         }
         yield cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
@@ -5767,12 +5771,12 @@ function commitBaselineScreenshots() {
 }
 function commitFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
-        const branch = process.env.GITHUB_RUN_ID || 'master';
-        const repoUrl = process.env.VISUAL_FAILURES_REPO_URL;
         const buildId = process.env.GITHUB_RUN_ID;
+        const branch = buildId || 'master';
+        const repoUrl = core.getInput('visual-failures-repo');
         const workingDirectory = core.getInput('working-directory');
         if (!repoUrl) {
-            core.setFailed('The environment variable `VISUAL_FAILURES_REPO_URL` is not set!');
+            core.setFailed('Please set `visual-failures-repo` to a valid git URL.');
             return;
         }
         yield cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);

@@ -29,14 +29,14 @@ async function cloneRepoAsAdmin(gitUrl: string, branch: string, directory: strin
 }
 
 async function commitBaselineScreenshots() {
-  const branch = process.env.VISUAL_BASELINES_REPO_BRANCH || 'master';
-  const repoUrl = process.env.VISUAL_BASELINES_REPO_URL;
-  const buildId = process.env.GITHUB_RUN_ID;
-
+  const branch = core.getInput('visual-baselines-branch') || 'master';
+  const repoUrl = core.getInput('visual-baselines-repo');
   const workingDirectory = core.getInput('working-directory');
 
+  const buildId = process.env.GITHUB_RUN_ID;
+
   if (!repoUrl) {
-    core.setFailed('The environment variable `VISUAL_BASELINES_REPO_URL` is not set!');
+    core.setFailed('Please set `visual-baselines-repo` to a valid git URL.');
     return;
   }
 
@@ -63,14 +63,14 @@ async function commitBaselineScreenshots() {
 }
 
 async function commitFailureScreenshots() {
-  const branch = process.env.GITHUB_RUN_ID || 'master';
-  const repoUrl = process.env.VISUAL_FAILURES_REPO_URL;
   const buildId = process.env.GITHUB_RUN_ID;
+  const branch = buildId || 'master';
 
+  const repoUrl = core.getInput('visual-failures-repo');
   const workingDirectory = core.getInput('working-directory');
 
   if (!repoUrl) {
-    core.setFailed('The environment variable `VISUAL_FAILURES_REPO_URL` is not set!');
+    core.setFailed('Please set `visual-failures-repo` to a valid git URL.');
     return;
   }
 

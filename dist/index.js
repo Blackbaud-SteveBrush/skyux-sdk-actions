@@ -1217,10 +1217,11 @@ function isBuild() {
     return (((_a = process.env.GITHUB_REF) === null || _a === void 0 ? void 0 : _a.indexOf('refs/heads/')) === 0);
 }
 exports.isBuild = isBuild;
-// GitHub only sets GITHUB_BASE_REF for forked repositories.
+// GitHub only sets GITHUB_HEAD_REF for forked repositories.
 // See: https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
 function isFork() {
-    return (process.env.GITHUB_BASE_REF !== undefined);
+    console.log('HEAD?', process.env.GITHUB_HEAD_REF);
+    return (process.env.GITHUB_HEAD_REF !== undefined);
 }
 exports.isFork = isFork;
 

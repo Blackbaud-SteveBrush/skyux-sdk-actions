@@ -2228,23 +2228,43 @@ function runSkyUxCommand(command, args) {
 }
 function installCerts() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield runSkyUxCommand('certs', ['install']);
+        try {
+            yield runSkyUxCommand('certs', ['install']);
+        }
+        catch (err) {
+            core.setFailed('SSL certificates installation failed.');
+        }
     });
 }
 function install() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield spawn_1.spawn('npm', ['ci']);
-        yield spawn_1.spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+        try {
+            yield spawn_1.spawn('npm', ['ci']);
+            yield spawn_1.spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+        }
+        catch (err) {
+            core.setFailed('Packages installation failed.');
+        }
     });
 }
 function build() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield runSkyUxCommand('build');
+        try {
+            yield runSkyUxCommand('build');
+        }
+        catch (err) {
+            core.setFailed('Build failed.');
+        }
     });
 }
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield runSkyUxCommand('test', ['--coverage', 'library']);
+        try {
+            yield runSkyUxCommand('test', ['--coverage', 'library']);
+        }
+        catch (err) {
+            core.setFailed('Code coverage failed.');
+        }
     });
 }
 function visual() {
@@ -2263,7 +2283,12 @@ function visual() {
 }
 function buildLibrary() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield runSkyUxCommand('build-public-library');
+        try {
+            yield runSkyUxCommand('build-public-library');
+        }
+        catch (err) {
+            core.setFailed('Library build failed.');
+        }
     });
 }
 // async function publishLibrary() {
@@ -2283,20 +2308,14 @@ function run() {
         process.env.BROWSER_STACK_ACCESS_KEY = core.getInput('browser-stack-access-key');
         process.env.BROWSER_STACK_USERNAME = core.getInput('browser-stack-username');
         process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
-        try {
-            yield install();
-            yield installCerts();
-            yield visual();
-            yield build();
-            yield coverage();
-            yield buildLibrary();
-            if (commit_type_1.isTag()) {
-                // await publishLibrary();
-            }
-        }
-        catch (error) {
-            core.setFailed(error);
-            process.exit(1);
+        yield install();
+        yield installCerts();
+        yield visual();
+        yield build();
+        yield coverage();
+        yield buildLibrary();
+        if (commit_type_1.isTag()) {
+            // await publishLibrary();
         }
     });
 }

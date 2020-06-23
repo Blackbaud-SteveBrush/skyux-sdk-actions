@@ -25,20 +25,36 @@ function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
 }
 
 async function installCerts(): Promise<void> {
-  await runSkyUxCommand('certs', ['install']);
+  try {
+    await runSkyUxCommand('certs', ['install']);
+  } catch (err) {
+    core.setFailed('SSL certificates installation failed.');
+  }
 }
 
 async function install(): Promise<void> {
-  await spawn('npm', ['ci']);
-  await spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+  try {
+    await spawn('npm', ['ci']);
+    await spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+  } catch (err) {
+    core.setFailed('Packages installation failed.');
+  }
 }
 
 async function build() {
-  await runSkyUxCommand('build');
+  try {
+    await runSkyUxCommand('build');
+  } catch (err) {
+    core.setFailed('Build failed.');
+  }
 }
 
 async function coverage() {
-  await runSkyUxCommand('test', ['--coverage', 'library']);
+  try {
+    await runSkyUxCommand('test', ['--coverage', 'library']);
+  } catch (err) {
+    core.setFailed('Code coverage failed.');
+  }
 }
 
 async function visual() {
@@ -54,7 +70,11 @@ async function visual() {
 }
 
 async function buildLibrary() {
-  await runSkyUxCommand('build-public-library');
+  try {
+    await runSkyUxCommand('build-public-library');
+  } catch (err) {
+    core.setFailed('Library build failed.');
+  }
 }
 
 // async function publishLibrary() {
@@ -76,21 +96,15 @@ async function run(): Promise<void> {
   process.env.BROWSER_STACK_USERNAME = core.getInput('browser-stack-username');
   process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
 
-  try {
-    await install();
-    await installCerts();
-    await visual();
-    await build();
-    await coverage();
-    await buildLibrary();
+  await install();
+  await installCerts();
+  await visual();
+  await build();
+  await coverage();
+  await buildLibrary();
 
-    if (isTag()) {
-      // await publishLibrary();
-    }
-
-  } catch (error) {
-    core.setFailed(error);
-    process.exit(1);
+  if (isTag()) {
+    // await publishLibrary();
   }
 }
 

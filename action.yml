@@ -2,9 +2,28 @@ name: 'Blackbaud-SteveBrush - SKY UX Coverage'
 description: 'Provide a description here'
 author: 'Blackbaud-SteveBrush'
 inputs:
+  browser-stack-access-key:
+    description: 'The BrowserStack access key.'
+    required: true
+  browser-stack-project:
+    description: 'The BrowserStack project name. The value is arbitrary and used to identify the appropriate logs.'
+    required: false
+  browser-stack-user-name:
+    description: 'The BrowserStack username.'
+    required: true
+  visual-baselines-repo:
+    description: 'The git repo URL to commit new baseline screenshots after a successful visual test.'
+    required: true
+  visual-baselines-branch:
+    description: 'The git branch to commit new baseline screenshots after a successful visual test.'
+    required: false
+  visual-failures-repo:
+    description: 'The git repo URL to commit new failure screenshots after a failed visual test.'
+    required: true
   working-directory:
-    description: 'Where to run the action.'
+    description: 'Run the action in a different subdirectory.'
     default: './'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

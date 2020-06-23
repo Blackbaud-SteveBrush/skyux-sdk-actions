@@ -10,6 +10,7 @@ import {
 } from './screenshot-comparator';
 
 import {
+  isBuild,
   isTag
 } from './commit-type';
 
@@ -43,7 +44,9 @@ async function coverage() {
 async function visual() {
   try {
     await runSkyUxCommand('e2e');
-    await checkNewBaselineScreenshots();
+    if (isBuild()) {
+      await checkNewBaselineScreenshots();
+    }
   } catch (err) {
     await checkNewFailureScreenshots();
     core.setFailed('End-to-end tests failed.');

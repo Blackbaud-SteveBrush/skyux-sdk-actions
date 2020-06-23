@@ -2251,7 +2251,9 @@ function visual() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield runSkyUxCommand('e2e');
-            yield screenshot_comparator_1.checkNewBaselineScreenshots();
+            if (commit_type_1.isBuild()) {
+                yield screenshot_comparator_1.checkNewBaselineScreenshots();
+            }
         }
         catch (err) {
             yield screenshot_comparator_1.checkNewFailureScreenshots();

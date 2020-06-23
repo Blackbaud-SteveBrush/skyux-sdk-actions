@@ -4,8 +4,9 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 
 import {
-  isPullRequest,
   isBuild,
+  isFork,
+  isPullRequest,
   isTag
 } from './commit-type';
 
@@ -25,31 +26,6 @@ async function cloneRepoAsAdmin(gitUrl: string, branch: string, directory: strin
   await spawn('git', ['config', '--global', 'user.email', '"sky-build-user@blackbaud.com"']);
   await spawn('git', ['config', '--global', 'user.name', '"Blackbaud Sky Build User"']);
   await spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', directory]);
-}
-
-async function commitScreenshots(changesDirectory: string, branch: string) {
-  core.info(`Preparing to commit screenshots to the '${branch}' branch.`);
-
-  const workingDirectory = core.getInput('working-directory');
-  const buildId = process.env.GITHUB_RUN_ID;
-
-  const config = {
-    cwd: path.resolve(workingDirectory, TEMP_DIR)
-  };
-
-  try {
-    await spawn('git', ['checkout', branch], config);
-  } catch (err) {
-    await spawn('git', ['checkout', '-b', branch], config);
-  }
-
-  await spawn('git', ['status'], config);
-
-  await spawn('git', ['add', changesDirectory], config);
-  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
-  await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
-
-  core.info('New baseline images saved.');
 }
 
 async function commitBaselineScreenshots() {
@@ -138,7 +114,10 @@ export async function checkNewFailureScreenshots() {
   console.log('isPullRequest?', isPullRequest());
   console.log('isBuild?', isBuild());
   console.log('isTag?', isTag());
+  console.log('isFork?', isFork());
+
   const hasChanges = await directoryHasChanges(FAILURE_SCREENSHOT_DIR);
+
   if (hasChanges) {
     core.info('New screenshots detected.');
     await commitFailureScreenshots();

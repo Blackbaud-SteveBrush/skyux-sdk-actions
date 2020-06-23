@@ -1217,6 +1217,12 @@ function isBuild() {
     return (((_a = process.env.GITHUB_REF) === null || _a === void 0 ? void 0 : _a.indexOf('refs/heads/')) === 0);
 }
 exports.isBuild = isBuild;
+// GitHub only sets GITHUB_BASE_REF for forked repositories.
+// See: https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
+function isFork() {
+    return (process.env.GITHUB_BASE_REF !== undefined);
+}
+exports.isFork = isFork;
 
 
 /***/ }),
@@ -3747,27 +3753,6 @@ function cloneRepoAsAdmin(gitUrl, branch, directory) {
         yield spawn_1.spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', directory]);
     });
 }
-function commitScreenshots(changesDirectory, branch) {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.info(`Preparing to commit screenshots to the '${branch}' branch.`);
-        const workingDirectory = core.getInput('working-directory');
-        const buildId = process.env.GITHUB_RUN_ID;
-        const config = {
-            cwd: path.resolve(workingDirectory, TEMP_DIR)
-        };
-        try {
-            yield spawn_1.spawn('git', ['checkout', branch], config);
-        }
-        catch (err) {
-            yield spawn_1.spawn('git', ['checkout', '-b', branch], config);
-        }
-        yield spawn_1.spawn('git', ['status'], config);
-        yield spawn_1.spawn('git', ['add', changesDirectory], config);
-        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
-        yield spawn_1.spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
-        core.info('New baseline images saved.');
-    });
-}
 function commitBaselineScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
         const branch = process.env.VISUAL_BASELINES_REPO_BRANCH || 'master';
@@ -3836,6 +3821,7 @@ function checkNewFailureScreenshots() {
         console.log('isPullRequest?', commit_type_1.isPullRequest());
         console.log('isBuild?', commit_type_1.isBuild());
         console.log('isTag?', commit_type_1.isTag());
+        console.log('isFork?', commit_type_1.isFork());
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(FAILURE_SCREENSHOT_DIR);
         if (hasChanges) {
             core.info('New screenshots detected.');

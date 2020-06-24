@@ -106,18 +106,17 @@ async function run(): Promise<void> {
   // }
 
   if (!isTag()) {
-    const branch = github.context.payload.pull_request?.head.ref;
-
-    console.log('BRANCH:', branch);
-
     // Get the last commit message.
     // See: https://stackoverflow.com/a/7293026/6178885
-    const result = await spawn('git', ['log', '-1', branch, '--pretty=%B'], {
+    const branch = github.context.payload.pull_request?.head.ref;
+    const result = await spawn('git', ['log', '-1', '--pretty=%B', '--oneline', branch], {
       cwd: process.cwd()
     });
 
-    console.log('HEY HEY HEY:', result);
-    process.exit(1);
+    if (result.indexOf('[ci skip') > -1) {
+      core.info('Found "[ci skip]" in last commit message. Aborting build and test run.');
+      process.exit(0);
+    }
   }
 
   console.log('isPullRequest?', isPullRequest());

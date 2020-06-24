@@ -2238,15 +2238,16 @@ function run() {
         //   process.exit();
         // }
         if (!commit_type_1.isTag()) {
-            const branch = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.ref;
-            console.log('BRANCH:', branch);
             // Get the last commit message.
             // See: https://stackoverflow.com/a/7293026/6178885
-            const result = yield spawn_1.spawn('git', ['log', '-1', branch, '--pretty=%B'], {
+            const branch = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.ref;
+            const result = yield spawn_1.spawn('git', ['log', '-1', '--pretty=%B', '--oneline', branch], {
                 cwd: process.cwd()
             });
-            console.log('HEY HEY HEY:', result);
-            process.exit(1);
+            if (result.indexOf('[ci skip') > -1) {
+                core.info('Found "[ci skip]" in last commit message. Aborting build and test run.');
+                process.exit(0);
+            }
         }
         console.log('isPullRequest?', commit_type_1.isPullRequest());
         console.log('isBuild?', commit_type_1.isBuild());

@@ -2237,10 +2237,11 @@ function run() {
             // Get the last commit message.
             // See: https://stackoverflow.com/a/7293026/6178885
             const branch = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.ref;
-            const result = yield spawn_1.spawn('git', ['log', '-1', '--pretty=%B', '--oneline', '--', branch], {
+            const result = yield spawn_1.spawn('git', ['log', '-1', '--pretty=%B', '--oneline', branch], {
                 cwd: process.cwd()
             });
             console.log('HEY:', branch, result);
+            process.exit();
             if (result.indexOf('[ci skip') > -1) {
                 core.info('Found "[ci skip]" in last commit message. Aborting build and test run.');
                 process.exit(0);

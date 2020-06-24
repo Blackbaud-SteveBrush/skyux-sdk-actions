@@ -5774,7 +5774,7 @@ function cloneRepoAsAdmin(gitUrl, branch, directory) {
 function commitBaselineScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
         const branch = core.getInput('visual-baselines-branch') || 'master';
-        const accessToken = core.getInput('github-access-token');
+        const accessToken = core.getInput('personal-access-token');
         const workingDirectory = core.getInput('working-directory');
         const repoUrl = `https://${accessToken}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
         const buildId = process.env.GITHUB_RUN_ID;
@@ -5796,7 +5796,7 @@ function commitFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
         const buildId = process.env.GITHUB_RUN_ID;
         const branch = buildId || 'master';
-        const accessToken = core.getInput('github-access-token');
+        const accessToken = core.getInput('personal-access-token');
         const workingDirectory = core.getInput('working-directory');
         const repoUrl = `https://${accessToken}@github.com/blackbaud/skyux-visual-test-results.git`;
         yield cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);

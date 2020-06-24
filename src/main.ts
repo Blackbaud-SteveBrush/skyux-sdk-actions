@@ -11,6 +11,8 @@ import {
 
 import {
   isBuild,
+  isFork,
+  isPullRequest,
   isTag
 } from './commit-type';
 
@@ -92,10 +94,15 @@ async function run(): Promise<void> {
   //   process.exit();
   // }
 
+  console.log('isPullRequest?', isPullRequest());
+  console.log('isBuild?', isBuild());
+  console.log('isTag?', isTag());
+  console.log('isFork?', isFork());
+
   // Set environment variables so that BrowserStack launcher can read them.
-  process.env.BROWSER_STACK_ACCESS_KEY = core.getInput('browser-stack-access-key');
-  process.env.BROWSER_STACK_USERNAME = core.getInput('browser-stack-username');
-  process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
+  core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));
+  core.exportVariable('BROWSER_STACK_USERNAME', core.getInput('browser-stack-username'));
+  core.exportVariable('BROWSER_STACK_PROJECT', core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY);
 
   await install();
   await installCerts();

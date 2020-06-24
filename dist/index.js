@@ -2305,10 +2305,14 @@ function run() {
         //   core.info('Builds not run during forked pull requests.');
         //   process.exit();
         // }
+        console.log('isPullRequest?', commit_type_1.isPullRequest());
+        console.log('isBuild?', commit_type_1.isBuild());
+        console.log('isTag?', commit_type_1.isTag());
+        console.log('isFork?', commit_type_1.isFork());
         // Set environment variables so that BrowserStack launcher can read them.
-        process.env.BROWSER_STACK_ACCESS_KEY = core.getInput('browser-stack-access-key');
-        process.env.BROWSER_STACK_USERNAME = core.getInput('browser-stack-username');
-        process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
+        core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));
+        core.exportVariable('BROWSER_STACK_USERNAME', core.getInput('browser-stack-username'));
+        core.exportVariable('BROWSER_STACK_PROJECT', core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY);
         yield install();
         yield installCerts();
         yield coverage();
@@ -5770,13 +5774,10 @@ function cloneRepoAsAdmin(gitUrl, branch, directory) {
 function commitBaselineScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
         const branch = core.getInput('visual-baselines-branch') || 'master';
-        const repoUrl = core.getInput('visual-baselines-repo');
+        const accessToken = core.getInput('github-access-token');
         const workingDirectory = core.getInput('working-directory');
+        const repoUrl = `https://${accessToken}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
         const buildId = process.env.GITHUB_RUN_ID;
-        if (!repoUrl) {
-            core.setFailed('Please set `visual-baselines-repo` to a valid git URL.');
-            return;
-        }
         yield cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
         // Move new screenshots to fresh copy of the repo.
         yield fs.copy(path.resolve(workingDirectory, BASELINE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, BASELINE_SCREENSHOT_DIR));
@@ -5795,12 +5796,9 @@ function commitFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
         const buildId = process.env.GITHUB_RUN_ID;
         const branch = buildId || 'master';
-        const repoUrl = core.getInput('visual-failures-repo');
+        const accessToken = core.getInput('github-access-token');
         const workingDirectory = core.getInput('working-directory');
-        if (!repoUrl) {
-            core.setFailed('Please set `visual-failures-repo` to a valid git URL.');
-            return;
-        }
+        const repoUrl = `https://${accessToken}@github.com/blackbaud/skyux-visual-test-results.git`;
         yield cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);
         // Move new screenshots to fresh copy of the repo.
         yield fs.copy(path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR));
@@ -5835,10 +5833,6 @@ function checkNewBaselineScreenshots() {
 exports.checkNewBaselineScreenshots = checkNewBaselineScreenshots;
 function checkNewFailureScreenshots() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('isPullRequest?', commit_type_1.isPullRequest());
-        console.log('isBuild?', commit_type_1.isBuild());
-        console.log('isTag?', commit_type_1.isTag());
-        console.log('isFork?', commit_type_1.isFork());
         if (!commit_type_1.isPullRequest()) {
             return;
         }

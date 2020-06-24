@@ -4,10 +4,7 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 
 import {
-  isBuild,
-  isFork,
-  isPullRequest,
-  isTag
+  isPullRequest
 } from './commit-type';
 
 import {
@@ -30,15 +27,11 @@ async function cloneRepoAsAdmin(gitUrl: string, branch: string, directory: strin
 
 async function commitBaselineScreenshots() {
   const branch = core.getInput('visual-baselines-branch') || 'master';
-  const repoUrl = core.getInput('visual-baselines-repo');
+  const accessToken = core.getInput('github-access-token');
   const workingDirectory = core.getInput('working-directory');
+  const repoUrl = `https://${accessToken}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
 
   const buildId = process.env.GITHUB_RUN_ID;
-
-  if (!repoUrl) {
-    core.setFailed('Please set `visual-baselines-repo` to a valid git URL.');
-    return;
-  }
 
   await cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
 
@@ -66,13 +59,9 @@ async function commitFailureScreenshots() {
   const buildId = process.env.GITHUB_RUN_ID;
   const branch = buildId || 'master';
 
-  const repoUrl = core.getInput('visual-failures-repo');
+  const accessToken = core.getInput('github-access-token');
   const workingDirectory = core.getInput('working-directory');
-
-  if (!repoUrl) {
-    core.setFailed('Please set `visual-failures-repo` to a valid git URL.');
-    return;
-  }
+  const repoUrl = `https://${accessToken}@github.com/blackbaud/skyux-visual-test-results.git`;
 
   await cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);
 
@@ -115,11 +104,6 @@ export async function checkNewBaselineScreenshots() {
 }
 
 export async function checkNewFailureScreenshots() {
-  console.log('isPullRequest?', isPullRequest());
-  console.log('isBuild?', isBuild());
-  console.log('isTag?', isTag());
-  console.log('isFork?', isFork());
-
   if (!isPullRequest()) {
     return;
   }

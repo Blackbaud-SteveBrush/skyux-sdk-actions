@@ -2237,7 +2237,7 @@ function run() {
         //   process.exit();
         // }
         if (!commit_type_1.isTag()) {
-            const branch = github.context.ref.split('refs/heads/')[1];
+            const branch = github.context.ref.replace('refs/heads/', '');
             console.log('BRANCH:', branch);
             // Get the last commit message.
             // See: https://stackoverflow.com/a/7293026/6178885

@@ -106,7 +106,7 @@ async function run(): Promise<void> {
   // }
 
   if (!isTag()) {
-    const branch = github.context.ref.split('refs/heads/')[1];
+    const branch = github.context.ref.replace('refs/heads/', '');
 
     console.log('BRANCH:', branch);
 

@@ -47,7 +47,7 @@ async function commitBaselineScreenshots(repository: string, buildId: string) {
 
   await spawn('git', ['checkout', branch], config);
   await spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
-  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
+  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
   await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
 
   core.info('New baseline images saved.');
@@ -76,7 +76,7 @@ async function commitFailureScreenshots(buildId: string) {
 
   await spawn('git', ['checkout', '-b', branch], config);
   await spawn('git', ['add', FAILURE_SCREENSHOT_DIR], config);
-  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
+  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new failure screenshots. [ci skip]`], config);
   await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
 
   const url = repoUrl.split('@')[1].replace('.git', '');

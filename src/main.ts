@@ -16,6 +16,12 @@ import {
 } from './commit-type';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
+  core.info(`
+========================================
+> Running SKY UX command: '${command}'
+========================================
+`);
+
   return spawn('npx', [
     '-p', '@skyux-sdk/cli@next',
     'skyux', command,

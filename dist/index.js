@@ -2212,6 +2212,11 @@ const spawn_1 = __webpack_require__(820);
 const screenshot_comparator_1 = __webpack_require__(453);
 const commit_type_1 = __webpack_require__(133);
 function runSkyUxCommand(command, args) {
+    core.info(`
+========================================
+> Running SKY UX command: '${command}'
+========================================
+`);
     return spawn_1.spawn('npx', [
         '-p', '@skyux-sdk/cli@next',
         'skyux', command,
@@ -5782,7 +5787,7 @@ function commitBaselineScreenshots(repository, buildId) {
         };
         yield spawn_1.spawn('git', ['checkout', branch], config);
         yield spawn_1.spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
-        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
+        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
         yield spawn_1.spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
         core.info('New baseline images saved.');
     });
@@ -5802,7 +5807,7 @@ function commitFailureScreenshots(buildId) {
         };
         yield spawn_1.spawn('git', ['checkout', '-b', branch], config);
         yield spawn_1.spawn('git', ['add', FAILURE_SCREENSHOT_DIR], config);
-        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
+        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new failure screenshots. [ci skip]`], config);
         yield spawn_1.spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
         const url = repoUrl.split('@')[1].replace('.git', '');
         core.setFailed(`SKY UX visual test failure!\nScreenshots may be viewed at: https://${url}/tree/${branch}`);

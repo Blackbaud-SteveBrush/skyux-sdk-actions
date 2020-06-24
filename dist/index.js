@@ -2307,7 +2307,11 @@ function run() {
         //   core.info('Builds not run during forked pull requests.');
         //   process.exit();
         // }
-        const result = yield spawn_1.spawn('git', ['log', '-1', '--pretty=%B']);
+        // Get the last commit message.
+        // See: https://stackoverflow.com/a/7293026/6178885
+        const result = yield spawn_1.spawn('git', ['log', '-1', '--pretty=%B'], {
+            cwd: process.cwd()
+        });
         console.log('HEY HEY HEY:', result);
         console.log('isPullRequest?', commit_type_1.isPullRequest());
         console.log('isBuild?', commit_type_1.isBuild());

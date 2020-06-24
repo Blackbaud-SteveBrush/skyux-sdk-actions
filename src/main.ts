@@ -104,7 +104,12 @@ async function run(): Promise<void> {
   //   process.exit();
   // }
 
-  const result = await spawn('git', ['log', '-1', '--pretty=%B']);
+  // Get the last commit message.
+  // See: https://stackoverflow.com/a/7293026/6178885
+  const result = await spawn('git', ['log', '-1', '--pretty=%B'], {
+    cwd: process.cwd()
+  });
+
   console.log('HEY HEY HEY:', result);
 
   console.log('isPullRequest?', isPullRequest());

@@ -1,5 +1,4 @@
 import * as core from '@actions/core';
-import * as github from '@actions/github';
 
 import {
   spawn
@@ -105,6 +104,9 @@ async function run(): Promise<void> {
   //   process.exit();
   // }
 
+  const result = await spawn('git', ['log', '-1', '--pretty=%B']);
+  console.log('HEY HEY HEY:', result);
+
   console.log('isPullRequest?', isPullRequest());
   console.log('isBuild?', isBuild());
   console.log('isTag?', isTag());
@@ -113,8 +115,6 @@ async function run(): Promise<void> {
   core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));
   core.exportVariable('BROWSER_STACK_USERNAME', core.getInput('browser-stack-username'));
   core.exportVariable('BROWSER_STACK_PROJECT', core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY);
-
-  console.log('COMMENT?', github.context.payload.comment);
 
   await install();
   await installCerts();

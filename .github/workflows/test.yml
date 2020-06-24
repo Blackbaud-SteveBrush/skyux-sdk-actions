@@ -31,7 +31,6 @@ jobs:
       with:
         browser-stack-access-key: ${{ secrets.BROWSER_STACK_ACCESS_KEY }}
         browser-stack-username: ${{ secrets.BROWSER_STACK_USERNAME }}
-        visual-baselines-repo: ${{ secrets.VISUAL_BASELINES_REPO_URL }}
+        github-access-token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
         visual-baselines-branch: 4.x.x-test-github-actions
-        visual-failures-repo: ${{ secrets.VISUAL_FAILURES_REPO_URL }}
         working-directory: ./skyux-sdk-template-library

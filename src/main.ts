@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import * as github from '@actions/github';
 
 import {
   spawn
@@ -104,13 +105,20 @@ async function run(): Promise<void> {
   //   process.exit();
   // }
 
-  // Get the last commit message.
-  // See: https://stackoverflow.com/a/7293026/6178885
-  const result = await spawn('git', ['log', '-1', '--pretty=%B'], {
-    cwd: process.cwd()
-  });
+  if (!isTag()) {
+    const branch = github.context.ref.split('refs/heads/')[1];
 
-  console.log('HEY HEY HEY:', result);
+    console.log('BRANCH:', branch);
+
+    // Get the last commit message.
+    // See: https://stackoverflow.com/a/7293026/6178885
+    const result = await spawn('git', ['log', '-1', branch, '--pretty=%B'], {
+      cwd: process.cwd()
+    });
+
+    console.log('HEY HEY HEY:', result);
+    process.exit(1);
+  }
 
   console.log('isPullRequest?', isPullRequest());
   console.log('isBuild?', isBuild());

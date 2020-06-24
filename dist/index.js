@@ -2231,13 +2231,14 @@ function buildLibrary() {
 //    */
 // }
 function run() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         // if (isFork()) {
         //   core.info('Builds not run during forked pull requests.');
         //   process.exit();
         // }
         if (!commit_type_1.isTag()) {
-            const branch = github.context.ref.replace('refs/heads/', '');
+            const branch = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.ref;
             console.log('BRANCH:', branch);
             // Get the last commit message.
             // See: https://stackoverflow.com/a/7293026/6178885

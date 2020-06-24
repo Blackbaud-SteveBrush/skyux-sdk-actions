@@ -106,7 +106,7 @@ async function run(): Promise<void> {
   // }
 
   if (!isTag()) {
-    const branch = github.context.ref.replace('refs/heads/', '');
+    const branch = github.context.payload.pull_request?.head.ref;
 
     console.log('BRANCH:', branch);
 

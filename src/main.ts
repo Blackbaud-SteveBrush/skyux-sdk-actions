@@ -104,7 +104,7 @@ async function run(): Promise<void> {
     // Get the last commit message.
     // See: https://stackoverflow.com/a/7293026/6178885
     const branch = github.context.payload.pull_request?.head.ref;
-    const result = await spawn('git', ['log', '-1', '--pretty=%B', '--oneline', branch], {
+    const result = await spawn('git', ['log -1 --pretty=%B --oneline', branch], {
       cwd: process.cwd()
     });
 

@@ -11,10 +11,17 @@ import {
 
 import {
   isBuild,
+  isPullRequest,
   isTag
 } from './commit-type';
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
+  core.info(`
+=====================================================
+> Running SKY UX command: '${command}'
+=====================================================
+`);
+
   return spawn('npx', [
     '-p', '@skyux-sdk/cli@next',
     'skyux', command,
@@ -58,14 +65,19 @@ async function coverage() {
 }
 
 async function visual() {
+  const repository = process.env.GITHUB_REPOSITORY || '';
+
+  // Generate a random 9-digit number of GitHub's run ID is not defined.
+  // See: https://stackoverflow.com/a/3437180/6178885
+  const buildId = process.env.GITHUB_RUN_ID || Math.random().toString().slice(2,11);
+
   try {
     await runSkyUxCommand('e2e');
     if (isBuild()) {
-      await checkNewBaselineScreenshots();
+      await checkNewBaselineScreenshots(repository, buildId);
     }
   } catch (err) {
-    console.log('E2E ERROR:', err);
-    await checkNewFailureScreenshots();
+    await checkNewFailureScreenshots(buildId);
     core.setFailed('End-to-end tests failed.');
   }
 }
@@ -92,10 +104,14 @@ async function run(): Promise<void> {
   //   process.exit();
   // }
 
+  console.log('isPullRequest?', isPullRequest());
+  console.log('isBuild?', isBuild());
+  console.log('isTag?', isTag());
+
   // Set environment variables so that BrowserStack launcher can read them.
-  process.env.BROWSER_STACK_ACCESS_KEY = core.getInput('browser-stack-access-key');
-  process.env.BROWSER_STACK_USERNAME = core.getInput('browser-stack-username');
-  process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
+  core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));
+  core.exportVariable('BROWSER_STACK_USERNAME', core.getInput('browser-stack-username'));
+  core.exportVariable('BROWSER_STACK_PROJECT', core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY);
 
   await install();
   await installCerts();

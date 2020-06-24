@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: '10.x'
+        node-version: '12.x'
     - name: Clone sample project
       run: git clone https://github.com/blackbaud/skyux-sdk-template-library --branch 4.x.x-test-github-actions --single-branch
     - name: Run action
@@ -31,7 +31,6 @@ jobs:
       with:
         browser-stack-access-key: ${{ secrets.BROWSER_STACK_ACCESS_KEY }}
         browser-stack-username: ${{ secrets.BROWSER_STACK_USERNAME }}
-        visual-baselines-repo: ${{ secrets.VISUAL_BASELINES_REPO_URL }}
+        personal-access-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         visual-baselines-branch: 4.x.x-test-github-actions
-        visual-failures-repo: ${{ secrets.VISUAL_FAILURES_REPO_URL }}
         working-directory: ./skyux-sdk-template-library

@@ -1641,12 +1641,6 @@ function isBuild() {
     return (github.context.ref.indexOf('refs/heads/') === 0);
 }
 exports.isBuild = isBuild;
-// GitHub only sets GITHUB_HEAD_REF for forked repositories.
-// See: https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
-function isFork() {
-    return (process.env.GITHUB_HEAD_REF !== undefined);
-}
-exports.isFork = isFork;
 
 
 /***/ }),
@@ -2218,6 +2212,11 @@ const spawn_1 = __webpack_require__(820);
 const screenshot_comparator_1 = __webpack_require__(453);
 const commit_type_1 = __webpack_require__(133);
 function runSkyUxCommand(command, args) {
+    core.info(`
+=====================================================
+> Running SKY UX command: '${command}'
+=====================================================
+`);
     return spawn_1.spawn('npx', [
         '-p', '@skyux-sdk/cli@next',
         'skyux', command,
@@ -2269,15 +2268,18 @@ function coverage() {
 }
 function visual() {
     return __awaiter(this, void 0, void 0, function* () {
+        const repository = process.env.GITHUB_REPOSITORY || '';
+        // Generate a random 9-digit number of GitHub's run ID is not defined.
+        // See: https://stackoverflow.com/a/3437180/6178885
+        const buildId = process.env.GITHUB_RUN_ID || Math.random().toString().slice(2, 11);
         try {
             yield runSkyUxCommand('e2e');
             if (commit_type_1.isBuild()) {
-                yield screenshot_comparator_1.checkNewBaselineScreenshots();
+                yield screenshot_comparator_1.checkNewBaselineScreenshots(repository, buildId);
             }
         }
         catch (err) {
-            console.log('E2E ERROR:', err);
-            yield screenshot_comparator_1.checkNewFailureScreenshots();
+            yield screenshot_comparator_1.checkNewFailureScreenshots(buildId);
             core.setFailed('End-to-end tests failed.');
         }
     });
@@ -2305,10 +2307,13 @@ function run() {
         //   core.info('Builds not run during forked pull requests.');
         //   process.exit();
         // }
+        console.log('isPullRequest?', commit_type_1.isPullRequest());
+        console.log('isBuild?', commit_type_1.isBuild());
+        console.log('isTag?', commit_type_1.isTag());
         // Set environment variables so that BrowserStack launcher can read them.
-        process.env.BROWSER_STACK_ACCESS_KEY = core.getInput('browser-stack-access-key');
-        process.env.BROWSER_STACK_USERNAME = core.getInput('browser-stack-username');
-        process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
+        core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));
+        core.exportVariable('BROWSER_STACK_USERNAME', core.getInput('browser-stack-username'));
+        core.exportVariable('BROWSER_STACK_PROJECT', core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY);
         yield install();
         yield installCerts();
         yield coverage();
@@ -5767,16 +5772,12 @@ function cloneRepoAsAdmin(gitUrl, branch, directory) {
         yield spawn_1.spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', directory]);
     });
 }
-function commitBaselineScreenshots() {
+function commitBaselineScreenshots(repository, buildId) {
     return __awaiter(this, void 0, void 0, function* () {
         const branch = core.getInput('visual-baselines-branch') || 'master';
-        const repoUrl = core.getInput('visual-baselines-repo');
+        const accessToken = core.getInput('personal-access-token');
         const workingDirectory = core.getInput('working-directory');
-        const buildId = process.env.GITHUB_RUN_ID;
-        if (!repoUrl) {
-            core.setFailed('Please set `visual-baselines-repo` to a valid git URL.');
-            return;
-        }
+        const repoUrl = `https://${accessToken}@github.com/${repository}.git`;
         yield cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
         // Move new screenshots to fresh copy of the repo.
         yield fs.copy(path.resolve(workingDirectory, BASELINE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, BASELINE_SCREENSHOT_DIR));
@@ -5786,21 +5787,17 @@ function commitBaselineScreenshots() {
         };
         yield spawn_1.spawn('git', ['checkout', branch], config);
         yield spawn_1.spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
-        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
+        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
         yield spawn_1.spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
         core.info('New baseline images saved.');
     });
 }
-function commitFailureScreenshots() {
+function commitFailureScreenshots(buildId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const buildId = process.env.GITHUB_RUN_ID;
         const branch = buildId || 'master';
-        const repoUrl = core.getInput('visual-failures-repo');
+        const accessToken = core.getInput('personal-access-token');
         const workingDirectory = core.getInput('working-directory');
-        if (!repoUrl) {
-            core.setFailed('Please set `visual-failures-repo` to a valid git URL.');
-            return;
-        }
+        const repoUrl = `https://${accessToken}@github.com/blackbaud/skyux-visual-test-results.git`;
         yield cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);
         // Move new screenshots to fresh copy of the repo.
         yield fs.copy(path.resolve(workingDirectory, FAILURE_SCREENSHOT_DIR), path.resolve(workingDirectory, TEMP_DIR, FAILURE_SCREENSHOT_DIR));
@@ -5810,13 +5807,18 @@ function commitFailureScreenshots() {
         };
         yield spawn_1.spawn('git', ['checkout', '-b', branch], config);
         yield spawn_1.spawn('git', ['add', FAILURE_SCREENSHOT_DIR], config);
-        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
+        yield spawn_1.spawn('git', ['commit', '--message', `Build #${buildId}: Added new failure screenshots. [ci skip]`], config);
         yield spawn_1.spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
         const url = repoUrl.split('@')[1].replace('.git', '');
         core.setFailed(`SKY UX visual test failure!\nScreenshots may be viewed at: https://${url}/tree/${branch}`);
     });
 }
-function checkNewBaselineScreenshots() {
+/**
+ *
+ * @param repository The repo to commit screenshots to: ${org}/${repo}
+ * @param buildId The CI build identifier.
+ */
+function checkNewBaselineScreenshots(repository, buildId) {
     return __awaiter(this, void 0, void 0, function* () {
         if (commit_type_1.isPullRequest()) {
             return;
@@ -5824,7 +5826,7 @@ function checkNewBaselineScreenshots() {
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(BASELINE_SCREENSHOT_DIR);
         if (hasChanges) {
             core.info('New screenshots detected.');
-            yield commitBaselineScreenshots();
+            yield commitBaselineScreenshots(repository, buildId);
         }
         else {
             core.info('No new screenshots detected. Done.');
@@ -5833,19 +5835,19 @@ function checkNewBaselineScreenshots() {
     });
 }
 exports.checkNewBaselineScreenshots = checkNewBaselineScreenshots;
-function checkNewFailureScreenshots() {
+/**
+ *
+ * @param buildId The CI build identifier.
+ */
+function checkNewFailureScreenshots(buildId) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('isPullRequest?', commit_type_1.isPullRequest());
-        console.log('isBuild?', commit_type_1.isBuild());
-        console.log('isTag?', commit_type_1.isTag());
-        console.log('isFork?', commit_type_1.isFork());
         if (!commit_type_1.isPullRequest()) {
             return;
         }
         const hasChanges = yield directory_has_changes_1.directoryHasChanges(FAILURE_SCREENSHOT_DIR);
         if (hasChanges) {
             core.info('New screenshots detected.');
-            yield commitFailureScreenshots();
+            yield commitFailureScreenshots(buildId);
         }
         else {
             core.info('No new screenshots detected. Done.');

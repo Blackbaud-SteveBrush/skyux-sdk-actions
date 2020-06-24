@@ -4,10 +4,7 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 
 import {
-  isBuild,
-  isFork,
-  isPullRequest,
-  isTag
+  isPullRequest
 } from './commit-type';
 
 import {
@@ -28,17 +25,11 @@ async function cloneRepoAsAdmin(gitUrl: string, branch: string, directory: strin
   await spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', directory]);
 }
 
-async function commitBaselineScreenshots() {
+async function commitBaselineScreenshots(repository: string, buildId: string) {
   const branch = core.getInput('visual-baselines-branch') || 'master';
-  const repoUrl = core.getInput('visual-baselines-repo');
+  const accessToken = core.getInput('personal-access-token');
   const workingDirectory = core.getInput('working-directory');
-
-  const buildId = process.env.GITHUB_RUN_ID;
-
-  if (!repoUrl) {
-    core.setFailed('Please set `visual-baselines-repo` to a valid git URL.');
-    return;
-  }
+  const repoUrl = `https://${accessToken}@github.com/${repository}.git`;
 
   await cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
 
@@ -56,23 +47,18 @@ async function commitBaselineScreenshots() {
 
   await spawn('git', ['checkout', branch], config);
   await spawn('git', ['add', BASELINE_SCREENSHOT_DIR], config);
-  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
+  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new baseline screenshots. [ci skip]`], config);
   await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
 
   core.info('New baseline images saved.');
 }
 
-async function commitFailureScreenshots() {
-  const buildId = process.env.GITHUB_RUN_ID;
+async function commitFailureScreenshots(buildId: string) {
   const branch = buildId || 'master';
 
-  const repoUrl = core.getInput('visual-failures-repo');
+  const accessToken = core.getInput('personal-access-token');
   const workingDirectory = core.getInput('working-directory');
-
-  if (!repoUrl) {
-    core.setFailed('Please set `visual-failures-repo` to a valid git URL.');
-    return;
-  }
+  const repoUrl = `https://${accessToken}@github.com/blackbaud/skyux-visual-test-results.git`;
 
   await cloneRepoAsAdmin(repoUrl, 'master', TEMP_DIR);
 
@@ -90,7 +76,7 @@ async function commitFailureScreenshots() {
 
   await spawn('git', ['checkout', '-b', branch], config);
   await spawn('git', ['add', FAILURE_SCREENSHOT_DIR], config);
-  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new screenshots. [ci skip]`], config);
+  await spawn('git', ['commit', '--message', `Build #${buildId}: Added new failure screenshots. [ci skip]`], config);
   await spawn('git', ['push', '--force', '--quiet', 'origin', branch], config);
 
   const url = repoUrl.split('@')[1].replace('.git', '');
@@ -98,7 +84,12 @@ async function commitFailureScreenshots() {
   core.setFailed(`SKY UX visual test failure!\nScreenshots may be viewed at: https://${url}/tree/${branch}`);
 }
 
-export async function checkNewBaselineScreenshots() {
+/**
+ *
+ * @param repository The repo to commit screenshots to: ${org}/${repo}
+ * @param buildId The CI build identifier.
+ */
+export async function checkNewBaselineScreenshots(repository: string, buildId: string) {
   if (isPullRequest()) {
     return;
   }
@@ -106,7 +97,7 @@ export async function checkNewBaselineScreenshots() {
   const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
   if (hasChanges) {
     core.info('New screenshots detected.');
-    await commitBaselineScreenshots();
+    await commitBaselineScreenshots(repository, buildId);
   } else {
     core.info('No new screenshots detected. Done.');
   }
@@ -114,12 +105,11 @@ export async function checkNewBaselineScreenshots() {
   rimraf.sync(TEMP_DIR);
 }
 
-export async function checkNewFailureScreenshots() {
-  console.log('isPullRequest?', isPullRequest());
-  console.log('isBuild?', isBuild());
-  console.log('isTag?', isTag());
-  console.log('isFork?', isFork());
-
+/**
+ *
+ * @param buildId The CI build identifier.
+ */
+export async function checkNewFailureScreenshots(buildId: string) {
   if (!isPullRequest()) {
     return;
   }
@@ -128,7 +118,7 @@ export async function checkNewFailureScreenshots() {
 
   if (hasChanges) {
     core.info('New screenshots detected.');
-    await commitFailureScreenshots();
+    await commitFailureScreenshots(buildId);
   } else {
     core.info('No new screenshots detected. Done.');
   }

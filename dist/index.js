@@ -2213,9 +2213,9 @@ const screenshot_comparator_1 = __webpack_require__(453);
 const commit_type_1 = __webpack_require__(133);
 function runSkyUxCommand(command, args) {
     core.info(`
-========================================
+=====================================================
 > Running SKY UX command: '${command}'
-========================================
+=====================================================
 `);
     return spawn_1.spawn('npx', [
         '-p', '@skyux-sdk/cli@next',

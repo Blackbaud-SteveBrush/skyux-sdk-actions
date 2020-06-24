@@ -2276,6 +2276,7 @@ function visual() {
             }
         }
         catch (err) {
+            console.log('E2E ERROR:', err);
             yield screenshot_comparator_1.checkNewFailureScreenshots();
             core.setFailed('End-to-end tests failed.');
         }
@@ -2310,9 +2311,9 @@ function run() {
         process.env.BROWSER_STACK_PROJECT = core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY;
         yield install();
         yield installCerts();
-        yield visual();
-        yield build();
         yield coverage();
+        yield build();
+        yield visual();
         yield buildLibrary();
         if (commit_type_1.isTag()) {
             // await publishLibrary();

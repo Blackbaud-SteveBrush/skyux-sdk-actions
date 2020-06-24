@@ -64,6 +64,7 @@ async function visual() {
       await checkNewBaselineScreenshots();
     }
   } catch (err) {
+    console.log('E2E ERROR:', err);
     await checkNewFailureScreenshots();
     core.setFailed('End-to-end tests failed.');
   }
@@ -98,9 +99,9 @@ async function run(): Promise<void> {
 
   await install();
   await installCerts();
-  await visual();
-  await build();
   await coverage();
+  await build();
+  await visual();
   await buildLibrary();
 
   if (isTag()) {

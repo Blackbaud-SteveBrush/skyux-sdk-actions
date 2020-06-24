@@ -2233,10 +2233,6 @@ function buildLibrary() {
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        // if (isFork()) {
-        //   core.info('Builds not run during forked pull requests.');
-        //   process.exit();
-        // }
         if (!commit_type_1.isTag()) {
             // Get the last commit message.
             // See: https://stackoverflow.com/a/7293026/6178885

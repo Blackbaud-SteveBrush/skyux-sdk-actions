@@ -100,11 +100,6 @@ async function buildLibrary() {
 // }
 
 async function run(): Promise<void> {
-  // if (isFork()) {
-  //   core.info('Builds not run during forked pull requests.');
-  //   process.exit();
-  // }
-
   if (!isTag()) {
     // Get the last commit message.
     // See: https://stackoverflow.com/a/7293026/6178885

@@ -1,6 +1,8 @@
 name: 'Blackbaud-SteveBrush - SKY UX Libraries Action'
-description: 'Provide a description here'
+description: 'Do not use.'
 author: 'Blackbaud-SteveBrush'
+icon: 'box'
+color: 'gray-dark'
 inputs:
   browser-stack-access-key:
     description: 'The BrowserStack access key.'

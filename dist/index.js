@@ -2237,7 +2237,7 @@ function run() {
             // Get the last commit message.
             // See: https://stackoverflow.com/a/7293026/6178885
             const branch = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.ref;
-            const result = yield spawn_1.spawn('git', ['log -1 --pretty=%B --oneline', branch], {
+            const result = yield spawn_1.spawn('git', ['log', '-1', '--pretty=%B', '--oneline'], {
                 cwd: process.cwd()
             });
             if (result.indexOf('[ci skip') > -1) {

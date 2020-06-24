@@ -25,13 +25,11 @@ async function cloneRepoAsAdmin(gitUrl: string, branch: string, directory: strin
   await spawn('git', ['clone', gitUrl, '--branch', branch, '--single-branch', directory]);
 }
 
-async function commitBaselineScreenshots() {
+async function commitBaselineScreenshots(repository: string, buildId: string) {
   const branch = core.getInput('visual-baselines-branch') || 'master';
   const accessToken = core.getInput('personal-access-token');
   const workingDirectory = core.getInput('working-directory');
-  const repoUrl = `https://${accessToken}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
-
-  const buildId = process.env.GITHUB_RUN_ID;
+  const repoUrl = `https://${accessToken}@github.com/${repository}.git`;
 
   await cloneRepoAsAdmin(repoUrl, branch, TEMP_DIR);
 
@@ -55,8 +53,7 @@ async function commitBaselineScreenshots() {
   core.info('New baseline images saved.');
 }
 
-async function commitFailureScreenshots() {
-  const buildId = process.env.GITHUB_RUN_ID;
+async function commitFailureScreenshots(buildId: string) {
   const branch = buildId || 'master';
 
   const accessToken = core.getInput('personal-access-token');
@@ -87,7 +84,12 @@ async function commitFailureScreenshots() {
   core.setFailed(`SKY UX visual test failure!\nScreenshots may be viewed at: https://${url}/tree/${branch}`);
 }
 
-export async function checkNewBaselineScreenshots() {
+/**
+ *
+ * @param repository The repo to commit screenshots to: ${org}/${repo}
+ * @param buildId The CI build identifier.
+ */
+export async function checkNewBaselineScreenshots(repository: string, buildId: string) {
   if (isPullRequest()) {
     return;
   }
@@ -95,7 +97,7 @@ export async function checkNewBaselineScreenshots() {
   const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
   if (hasChanges) {
     core.info('New screenshots detected.');
-    await commitBaselineScreenshots();
+    await commitBaselineScreenshots(repository, buildId);
   } else {
     core.info('No new screenshots detected. Done.');
   }
@@ -103,7 +105,11 @@ export async function checkNewBaselineScreenshots() {
   rimraf.sync(TEMP_DIR);
 }
 
-export async function checkNewFailureScreenshots() {
+/**
+ *
+ * @param buildId The CI build identifier.
+ */
+export async function checkNewFailureScreenshots(buildId: string) {
   if (!isPullRequest()) {
     return;
   }
@@ -112,7 +118,7 @@ export async function checkNewFailureScreenshots() {
 
   if (hasChanges) {
     core.info('New screenshots detected.');
-    await commitFailureScreenshots();
+    await commitFailureScreenshots(buildId);
   } else {
     core.info('No new screenshots detected. Done.');
   }

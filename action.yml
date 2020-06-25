@@ -17,6 +17,12 @@ inputs:
   personal-access-token:
     description: 'The GitHub personal access token used to commit visual test results.'
     required: true
+  npm-token:
+    description: 'The NPM token used to publish libraries.'
+    required: true
+  slack-webhook:
+    description: 'The Slack webhook used to push notifications.'
+    required: false
   visual-baselines-branch:
     description: 'The git branch to commit new baseline screenshots after a successful visual test.'
     required: false

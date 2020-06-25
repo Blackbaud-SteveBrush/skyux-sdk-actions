@@ -4,10 +4,6 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 
 import {
-  isPullRequest
-} from './commit-type';
-
-import {
   directoryHasChanges
 } from './directory-has-changes';
 
@@ -90,10 +86,6 @@ async function commitFailureScreenshots(buildId: string) {
  * @param buildId The CI build identifier.
  */
 export async function checkNewBaselineScreenshots(repository: string, buildId: string) {
-  if (isPullRequest()) {
-    return;
-  }
-
   const hasChanges = await directoryHasChanges(BASELINE_SCREENSHOT_DIR);
   if (hasChanges) {
     core.info('New screenshots detected.');
@@ -110,12 +102,7 @@ export async function checkNewBaselineScreenshots(repository: string, buildId: s
  * @param buildId The CI build identifier.
  */
 export async function checkNewFailureScreenshots(buildId: string) {
-  if (!isPullRequest()) {
-    return;
-  }
-
   const hasChanges = await directoryHasChanges(FAILURE_SCREENSHOT_DIR);
-
   if (hasChanges) {
     core.info('New screenshots detected.');
     await commitFailureScreenshots(buildId);

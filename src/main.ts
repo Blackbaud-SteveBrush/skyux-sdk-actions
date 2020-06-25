@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
-import * as github from '@actions/github';
+// import * as github from '@actions/github';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as slack from '@slack/webhook';
+// import * as slack from '@slack/webhook';
 
 import {
   spawn
@@ -98,28 +98,29 @@ async function buildLibrary() {
 }
 
 async function publishLibrary() {
+  const packageJsonPath = path.resolve(process.cwd(), core.getInput('working-directory'), 'package.json');
+  const packageJson = fs.readJsonSync(packageJsonPath);
+  const packageName = packageJson.name;
+  const version = packageJson.version;
 
-  const tag = (getTag().indexOf('-') > -1) ? 'next' : 'latest';
-  const repository = process.env.GITHUB_REPOSITORY || '';
-  const changelogUrl = `https://github.com/${repository}/blob/${tag}/CHANGELOG.md`;
-  const packageName = fs.readJsonSync(path.resolve(process.cwd(), 'package.json')).name;
-  const npmToken = core.getInput('npm-token');
-
-  // Set this environment variable so that NPM will publish with the correct credentials.
-  // See: https://sergiodxa.com/articles/github-actions-npm-publish/
-  // core.exportVariable('NODE_AUTH_TOKEN', core.getInput('npm-token'));
+  core.info(`Preparing to publish ${packageName}@${version} to NPM...`);
 
   const npmFilePath = path.resolve(process.cwd(), '.npmrc');
+  const npmToken = core.getInput('npm-token');
   await fs.ensureFile(npmFilePath);
   fs.writeFileSync(npmFilePath, `//registry.npmjs.org/:_authToken=${npmToken}`);
 
   try {
-    await spawn('npm', ['publish', '--access', 'public', '--tag', tag, '--dryrun']);
-    await notifySlack(`${packageName}@${tag} published to NPM.\n${changelogUrl}`);
+    const npmTag = (getTag().indexOf('-') > -1) ? 'next' : 'latest';
+    await spawn('npm', ['publish', '--access', 'public', '--tag', npmTag, '--dryrun']);
+    const repository = process.env.GITHUB_REPOSITORY || '';
+    const changelogUrl = `https://github.com/${repository}/blob/${version}/CHANGELOG.md`;
+    core.info(`Successfully published ${packageName}@${version} to NPM.`);
+    await notifySlack(`${packageName}@${version} published to NPM.\n${changelogUrl}`);
   } catch (err) {
     core.setFailed(err);
     console.log('ERROR:', err);
-    await notifySlack(`${packageName}@${tag} failed to publish to NPM.`);
+    await notifySlack(`${packageName}@${version} failed to publish to NPM.`);
   }
 
   fs.removeSync(npmFilePath);
@@ -129,6 +130,7 @@ async function notifySlack(message: string) {
   const url = core.getInput('slack-webhook');
   if (url) {
     core.info('Notifying Slack.');
+    console.log('SLACK MESSAGE:', message);
     // const webhook = new slack.IncomingWebhook(url);
     // await webhook.send({
     //   text: '[test message] Notification sent from GitHub Actions!'

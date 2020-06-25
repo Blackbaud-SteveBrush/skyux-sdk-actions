@@ -107,7 +107,7 @@ async function run(): Promise<void> {
       cwd: process.cwd()
     });
 
-    console.log('`git log` result:', result);
+    console.log('GitHub payload:', github.context.payload.push);
 
     if (result.indexOf('[ci skip]') > -1) {
       core.info('Found "[ci skip]" in last commit message. Aborting build and test run.');

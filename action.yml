@@ -17,6 +17,9 @@ inputs:
   personal-access-token:
     description: 'The GitHub personal access token used to commit visual test results.'
     required: true
+  visual-baselines-branch:
+    description: 'The git branch to commit new baseline screenshots after a successful visual test.'
+    required: false
   working-directory:
     description: 'Run the action in a different subdirectory.'
     default: './'

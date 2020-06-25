@@ -8,6 +8,6 @@ export function isTag(): boolean {
   return (github.context.ref.indexOf('refs/tags/') === 0);
 }
 
-export function isBuild(): boolean {
+export function isPush(): boolean {
   return (github.context.ref.indexOf('refs/heads/') === 0);
 }

@@ -1637,10 +1637,10 @@ function isTag() {
     return (github.context.ref.indexOf('refs/tags/') === 0);
 }
 exports.isTag = isTag;
-function isBuild() {
+function isPush() {
     return (github.context.ref.indexOf('refs/heads/') === 0);
 }
-exports.isBuild = isBuild;
+exports.isPush = isPush;
 
 
 /***/ }),
@@ -2274,7 +2274,7 @@ function visual() {
         const buildId = process.env.GITHUB_RUN_ID || Math.random().toString().slice(2, 11);
         try {
             yield runSkyUxCommand('e2e');
-            if (commit_type_1.isBuild()) {
+            if (commit_type_1.isPush()) {
                 yield screenshot_comparator_1.checkNewBaselineScreenshots(repository, buildId);
             }
         }
@@ -2303,12 +2303,20 @@ function buildLibrary() {
 // }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        // if (isFork()) {
-        //   core.info('Builds not run during forked pull requests.');
-        //   process.exit();
-        // }
+        if (commit_type_1.isPush()) {
+            // Get the last commit message.
+            // See: https://stackoverflow.com/a/7293026/6178885
+            const result = yield spawn_1.spawn('git', ['log', '-1', '--pretty=%B', '--oneline'], {
+                cwd: process.cwd()
+            });
+            console.log('`git log` result:', result);
+            if (result.indexOf('[ci skip]') > -1) {
+                core.info('Found "[ci skip]" in last commit message. Aborting build and test run.');
+                process.exit(0);
+            }
+        }
         console.log('isPullRequest?', commit_type_1.isPullRequest());
-        console.log('isBuild?', commit_type_1.isBuild());
+        console.log('isPush?', commit_type_1.isPush());
         console.log('isTag?', commit_type_1.isTag());
         // Set environment variables so that BrowserStack launcher can read them.
         core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));

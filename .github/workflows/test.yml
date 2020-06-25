@@ -18,6 +18,7 @@ jobs:
         npm test
         bash <(curl -s https://codecov.io/bash)
   test: # make sure the action works on a clean machine without building
+    if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

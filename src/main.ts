@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import * as github from '@actions/github';
 
 import {
   spawn
@@ -10,7 +11,7 @@ import {
 } from './screenshot-comparator';
 
 import {
-  isBuild,
+  isPush,
   isPullRequest,
   isTag
 } from './commit-type';
@@ -73,7 +74,7 @@ async function visual() {
 
   try {
     await runSkyUxCommand('e2e');
-    if (isBuild()) {
+    if (isPush()) {
       await checkNewBaselineScreenshots(repository, buildId);
     }
   } catch (err) {
@@ -99,13 +100,23 @@ async function buildLibrary() {
 // }
 
 async function run(): Promise<void> {
-  // if (isFork()) {
-  //   core.info('Builds not run during forked pull requests.');
-  //   process.exit();
-  // }
+  if (isPush()) {
+    // Get the last commit message.
+    // See: https://stackoverflow.com/a/7293026/6178885
+    const result = await spawn('git', ['log', '-1', '--pretty=%B', '--oneline'], {
+      cwd: process.cwd()
+    });
+
+    console.log('`git log` result:', result);
+
+    if (result.indexOf('[ci skip]') > -1) {
+      core.info('Found "[ci skip]" in last commit message. Aborting build and test run.');
+      process.exit(0);
+    }
+  }
 
   console.log('isPullRequest?', isPullRequest());
-  console.log('isBuild?', isBuild());
+  console.log('isPush?', isPush());
   console.log('isTag?', isTag());
 
   // Set environment variables so that BrowserStack launcher can read them.

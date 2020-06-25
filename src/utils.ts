@@ -11,3 +11,7 @@ export function isTag(): boolean {
 export function isPush(): boolean {
   return (github.context.ref.indexOf('refs/heads/') === 0);
 }
+
+export function getTag(): string {
+  return github.context.ref.replace('refs/tags/', '');
+}

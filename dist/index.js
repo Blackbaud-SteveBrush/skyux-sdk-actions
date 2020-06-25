@@ -2309,7 +2309,7 @@ function run() {
             const result = yield spawn_1.spawn('git', ['log', '-1', '--pretty=%B', '--oneline'], {
                 cwd: process.cwd()
             });
-            console.log('HEY:', result);
+            console.log('`git log` result:', result);
             if (result.indexOf('[ci skip]') > -1) {
                 core.info('Found "[ci skip]" in last commit message. Aborting build and test run.');
                 process.exit(0);

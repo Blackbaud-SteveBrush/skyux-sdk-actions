@@ -19,7 +19,7 @@ import {
 } from './utils';
 
 // Generate a unique build name to be used by BrowserStack.
-const BUILD_ID = `${process.env.GITHUB_REPOSITORY?.split('/')[1]}_${process.env.GITHUB_EVENT_NAME}_${process.env.GITHUB_RUN_ID}_${Math.random().toString().slice(2,7)}`;
+const BUILD_ID = `${process.env.GITHUB_REPOSITORY?.split('/')[1]}-${process.env.GITHUB_EVENT_NAME}-${process.env.GITHUB_RUN_ID}-${Math.random().toString().slice(2,7)}`;
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
   core.info(`

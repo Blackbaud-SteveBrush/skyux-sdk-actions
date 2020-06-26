@@ -32,7 +32,7 @@ function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
     '-p', '@skyux-sdk/cli@next',
     'skyux', command,
     '--logFormat', 'none',
-    '--platform', 'travis',
+    '--platform', 'gh-actions',
     ...args || ''
   ]);
 }
@@ -48,7 +48,7 @@ async function installCerts(): Promise<void> {
 async function install(): Promise<void> {
   try {
     await spawn('npm', ['ci']);
-    await spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+    await spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config#enhancements']);
   } catch (err) {
     core.setFailed('Packages installation failed.');
   }

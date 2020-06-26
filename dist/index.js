@@ -3190,9 +3190,7 @@ function build() {
 }
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
-        // This needs to be set until we can change the environment variable's name in Builder config.
-        // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/karma/test.karma.conf.js#L15
-        core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-coverage`);
+        core.exportVariable('BROWSER_STACK_BUILD_ID', `${BUILD_ID}-coverage`);
         try {
             yield runSkyUxCommand('test', ['--coverage', 'library']);
         }
@@ -3203,9 +3201,7 @@ function coverage() {
 }
 function visual() {
     return __awaiter(this, void 0, void 0, function* () {
-        // This needs to be set until we can change the environment variable's name in Builder config.
-        // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/protractor/protractor.conf.js#L9
-        core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-visual`);
+        core.exportVariable('BROWSER_STACK_BUILD_ID', `${BUILD_ID}-visual`);
         const repository = process.env.GITHUB_REPOSITORY || '';
         try {
             yield runSkyUxCommand('e2e');

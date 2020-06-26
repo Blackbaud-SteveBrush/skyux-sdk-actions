@@ -3134,15 +3134,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const npm_publish_1 = __webpack_require__(96);
 const screenshot_comparator_1 = __webpack_require__(416);
 const spawn_1 = __webpack_require__(820);
 const utils_1 = __webpack_require__(611);
-// Generate a random 9-digit number of GitHub's run ID is not defined.
-// See: https://stackoverflow.com/a/3437180/6178885
-const BUILD_ID = process.env.GITHUB_RUN_ID || Math.random().toString().slice(2, 11);
+// Generate a unique build name to be used by BrowserStack.
+const BUILD_ID = `${(_a = process.env.GITHUB_REPOSITORY) === null || _a === void 0 ? void 0 : _a.split('/')[1]}-${process.env.GITHUB_EVENT_NAME}-${process.env.GITHUB_RUN_ID}-${Math.random().toString().slice(2, 7)}`;
 function runSkyUxCommand(command, args) {
     core.info(`
 =====================================================
@@ -3190,6 +3190,9 @@ function build() {
 }
 function coverage() {
     return __awaiter(this, void 0, void 0, function* () {
+        // This needs to be set until we can change the environment variable's name in Builder config.
+        // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/karma/test.karma.conf.js#L15
+        core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-coverage`);
         try {
             yield runSkyUxCommand('test', ['--coverage', 'library']);
         }
@@ -3200,6 +3203,9 @@ function coverage() {
 }
 function visual() {
     return __awaiter(this, void 0, void 0, function* () {
+        // This needs to be set until we can change the environment variable's name in Builder config.
+        // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/protractor/protractor.conf.js#L9
+        core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-visual`);
         const repository = process.env.GITHUB_REPOSITORY || '';
         try {
             yield runSkyUxCommand('e2e');
@@ -3247,9 +3253,6 @@ function run() {
         core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));
         core.exportVariable('BROWSER_STACK_USERNAME', core.getInput('browser-stack-username'));
         core.exportVariable('BROWSER_STACK_PROJECT', core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY);
-        // This needs to be set until we can change the environment variable's name in Builder config.
-        // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/protractor/protractor.conf.js#L9
-        core.exportVariable('TRAVIS_BUILD_NUMBER', BUILD_ID);
         yield install();
         yield installCerts();
         yield coverage();

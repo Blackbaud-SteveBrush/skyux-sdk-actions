@@ -18,9 +18,8 @@ import {
   isTag
 } from './utils';
 
-// Generate a random 9-digit number of GitHub's run ID is not defined.
-// See: https://stackoverflow.com/a/3437180/6178885
-const BUILD_ID = process.env.GITHUB_RUN_ID || Math.random().toString().slice(2,11);
+// Generate a unique build name to be used by BrowserStack.
+const BUILD_ID = `${process.env.GITHUB_REPOSITORY?.split('/')[1]}-${process.env.GITHUB_EVENT_NAME}-${process.env.GITHUB_RUN_ID}-${Math.random().toString().slice(2,7)}`;
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
   core.info(`
@@ -64,6 +63,10 @@ async function build() {
 }
 
 async function coverage() {
+  // This needs to be set until we can change the environment variable's name in Builder config.
+  // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/karma/test.karma.conf.js#L15
+  core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-coverage`);
+
   try {
     await runSkyUxCommand('test', ['--coverage', 'library']);
   } catch (err) {
@@ -72,6 +75,10 @@ async function coverage() {
 }
 
 async function visual() {
+  // This needs to be set until we can change the environment variable's name in Builder config.
+  // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/protractor/protractor.conf.js#L9
+  core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-visual`);
+
   const repository = process.env.GITHUB_REPOSITORY || '';
   try {
     await runSkyUxCommand('e2e');
@@ -116,10 +123,6 @@ async function run(): Promise<void> {
   core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));
   core.exportVariable('BROWSER_STACK_USERNAME', core.getInput('browser-stack-username'));
   core.exportVariable('BROWSER_STACK_PROJECT', core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY);
-
-  // This needs to be set until we can change the environment variable's name in Builder config.
-  // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/protractor/protractor.conf.js#L9
-  core.exportVariable('TRAVIS_BUILD_NUMBER', BUILD_ID);
 
   await install();
   await installCerts();

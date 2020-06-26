@@ -3134,15 +3134,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const npm_publish_1 = __webpack_require__(96);
 const screenshot_comparator_1 = __webpack_require__(416);
 const spawn_1 = __webpack_require__(820);
 const utils_1 = __webpack_require__(611);
-// Generate a random 9-digit number of GitHub's run ID is not defined.
-// See: https://stackoverflow.com/a/3437180/6178885
-const BUILD_ID = process.env.GITHUB_RUN_ID || Math.random().toString().slice(2, 11);
+// Generate a unique build name to be used by BrowserStack.
+const BUILD_ID = `${(_a = process.env.GITHUB_REPOSITORY) === null || _a === void 0 ? void 0 : _a.split('/')[1]}_${process.env.GITHUB_EVENT_NAME}_${process.env.GITHUB_RUN_ID}_${Math.random().toString().slice(2, 7)}`;
 function runSkyUxCommand(command, args) {
     core.info(`
 =====================================================

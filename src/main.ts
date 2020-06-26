@@ -18,9 +18,8 @@ import {
   isTag
 } from './utils';
 
-// Generate a random 9-digit number of GitHub's run ID is not defined.
-// See: https://stackoverflow.com/a/3437180/6178885
-const BUILD_ID = process.env.GITHUB_RUN_ID || Math.random().toString().slice(2,11);
+// Generate a unique build name to be used by BrowserStack.
+const BUILD_ID = `${process.env.GITHUB_REPOSITORY?.split('/')[1]}_${process.env.GITHUB_EVENT_NAME}_${process.env.GITHUB_RUN_ID}_${Math.random().toString().slice(2,7)}`;
 
 function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
   core.info(`

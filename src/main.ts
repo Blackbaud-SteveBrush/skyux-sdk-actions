@@ -63,6 +63,10 @@ async function build() {
 }
 
 async function coverage() {
+  // This needs to be set until we can change the environment variable's name in Builder config.
+  // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/karma/test.karma.conf.js#L15
+  core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-coverage`);
+
   try {
     await runSkyUxCommand('test', ['--coverage', 'library']);
   } catch (err) {
@@ -71,6 +75,10 @@ async function coverage() {
 }
 
 async function visual() {
+  // This needs to be set until we can change the environment variable's name in Builder config.
+  // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/protractor/protractor.conf.js#L9
+  core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-visual`);
+
   const repository = process.env.GITHUB_REPOSITORY || '';
   try {
     await runSkyUxCommand('e2e');
@@ -115,10 +123,6 @@ async function run(): Promise<void> {
   core.exportVariable('BROWSER_STACK_ACCESS_KEY', core.getInput('browser-stack-access-key'));
   core.exportVariable('BROWSER_STACK_USERNAME', core.getInput('browser-stack-username'));
   core.exportVariable('BROWSER_STACK_PROJECT', core.getInput('browser-stack-project') || process.env.GITHUB_REPOSITORY);
-
-  // This needs to be set until we can change the environment variable's name in Builder config.
-  // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/protractor/protractor.conf.js#L9
-  core.exportVariable('TRAVIS_BUILD_NUMBER', BUILD_ID);
 
   await install();
   await installCerts();

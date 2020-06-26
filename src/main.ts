@@ -32,7 +32,7 @@ function runSkyUxCommand(command: string, args?: string[]): Promise<string> {
     '-p', '@skyux-sdk/cli@next',
     'skyux', command,
     '--logFormat', 'none',
-    '--platform', 'travis',
+    '--platform', 'gh-actions',
     ...args || ''
   ]);
 }
@@ -48,7 +48,7 @@ async function installCerts(): Promise<void> {
 async function install(): Promise<void> {
   try {
     await spawn('npm', ['ci']);
-    await spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config']);
+    await spawn('npm', ['install', '--no-save', '--no-package-lock', 'blackbaud/skyux-sdk-builder-config#enhancements']);
   } catch (err) {
     core.setFailed('Packages installation failed.');
   }
@@ -63,9 +63,7 @@ async function build() {
 }
 
 async function coverage() {
-  // This needs to be set until we can change the environment variable's name in Builder config.
-  // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/karma/test.karma.conf.js#L15
-  core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-coverage`);
+  core.exportVariable('BROWSER_STACK_BUILD_ID', `${BUILD_ID}-coverage`);
 
   try {
     await runSkyUxCommand('test', ['--coverage', 'library']);
@@ -75,9 +73,7 @@ async function coverage() {
 }
 
 async function visual() {
-  // This needs to be set until we can change the environment variable's name in Builder config.
-  // See: https://github.com/blackbaud/skyux-sdk-builder-config/blob/master/travis/config/protractor/protractor.conf.js#L9
-  core.exportVariable('TRAVIS_BUILD_NUMBER', `${BUILD_ID}-visual`);
+  core.exportVariable('BROWSER_STACK_BUILD_ID', `${BUILD_ID}-visual`);
 
   const repository = process.env.GITHUB_REPOSITORY || '';
   try {
